@@ -2186,9 +2186,7 @@
         // ══════════════════════════════════════════════════════
 
         // Config - auto-detecta si hay backend local o usa mock
-        const BACKEND_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
-            ? `http://localhost:3002`
-            : window.location.origin;
+        const BACKEND_URL = 'https://appforge-backend-v0z6.onrender.com';
 
         // MODO TRIAL COMPLETO - activo por 48h
         const TRIAL_MODE = true;
@@ -2248,7 +2246,7 @@
             // Verificar si hay backend real
             let backendAvailable = false;
             try {
-                const health = await fetch(`${BACKEND_URL}/api/health`, { signal: AbortSignal.timeout(3000) });
+                const health = await fetch(`${BACKEND_URL}/api/health`, { signal: AbortSignal.timeout(15000) });
                 const data = await health.json();
                 backendAvailable = data.status === 'ok';
             } catch(e) { backendAvailable = false; }
@@ -2307,7 +2305,7 @@
 
             } else {
                 // ── MODO DEMO INTELIGENTE: Simular con logs mejorados ──
-                appendLog('[INFO] Modo demo activo (backend no detectado). Simulando pipeline IA...', 'yellow');
+                appendLog('[WARN] Servidor iniciando (puede tardar 30s)... reintentando...', 'yellow');
                 appendLog('[INFO] Para activar el backend real: ejecuta el servidor Node.js en puerto 3001', 'yellow');
                 runDemoPipeline(appName, appPackage, appVersion, currentPlatform);
             }
