@@ -1,0 +1,7 @@
+node_modules/
+.env
+uploads/
+output/
+workspace/
+*.zip
+*.log

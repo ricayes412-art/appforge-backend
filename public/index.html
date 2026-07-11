@@ -1,0 +1,2438 @@
+<!DOCTYPE html>
+<html lang="es" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AppForge Cloud - Compilación de APKs & IPAs con Inteligencia Artificial</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Orbitron:wght@500;700;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Tailwind CSS (for base utilities and fluid responsiveness, custom-themed with rich design styles inside inline styles) -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        orbitron: ['Orbitron', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            dark: '#03001e',
+                            darker: '#020010',
+                            card: 'rgba(15, 12, 30, 0.45)',
+                            purple: '#7303c0',
+                            pink: '#ec38bc',
+                            blue: '#03001e',
+                            cyan: '#00f2fe',
+                            accent: '#8a2be2',
+                        }
+                    },
+                    animation: {
+                        'pulse-slow': 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
+                        'glow': 'glow 2s ease-in-out infinite alternate',
+                    },
+                    keyframes: {
+                        glow: {
+                            '0%': { boxShadow: '0 0 5px rgba(0, 242, 254, 0.5), 0 0 10px rgba(138, 43, 226, 0.3)' },
+                            '100%': { boxShadow: '0 0 20px rgba(0, 242, 254, 0.8), 0 0 30px rgba(236, 56, 188, 0.6)' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Estilos Personalizados Premium y Glassmorphism */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #020010;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #251b4f;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #44318d;
+        }
+
+        body {
+            background: radial-gradient(circle at 50% 50%, #160a2b 0%, #030014 60%, #000000 100%);
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        .bg-glass {
+            background: rgba(13, 8, 30, 0.55);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        .bg-glass-card {
+            background: rgba(20, 12, 45, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .bg-glass-card:hover {
+            background: rgba(28, 17, 62, 0.55);
+            border-color: rgba(0, 242, 254, 0.3);
+            box-shadow: 0 15px 35px rgba(115, 3, 192, 0.2);
+            transform: translateY(-4px);
+        }
+
+        .text-glow-cyan {
+            text-shadow: 0 0 10px rgba(0, 242, 254, 0.6);
+        }
+
+        .text-glow-purple {
+            text-shadow: 0 0 10px rgba(236, 56, 188, 0.6);
+        }
+
+        /* Degradados Premium */
+        .gradient-text {
+            background: linear-gradient(135deg, #00f2fe 0%, #4facfe 30%, #ec38bc 70%, #7303c0 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .gradient-btn {
+            background: linear-gradient(135deg, #7303c0 0%, #ec38bc 50%, #00f2fe 100%);
+            background-size: 200% auto;
+            transition: 0.5s;
+        }
+
+        .gradient-btn:hover {
+            background-position: right center;
+            box-shadow: 0 0 25px rgba(0, 242, 254, 0.7);
+        }
+
+        .gradient-border-active {
+            border-image: linear-gradient(to right, #00f2fe, #ec38bc) 1;
+        }
+
+        /* Animaciones */
+        @keyframes float {
+            0% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+            100% { transform: translateY(0px); }
+        }
+
+        .animate-float {
+            animation: float 4s ease-in-out infinite;
+        }
+
+        @keyframes scan {
+            0% { transform: translateY(-100%); }
+            100% { transform: translateY(100%); }
+        }
+
+        .animate-scan {
+            animation: scan 2s linear infinite;
+        }
+
+        /* Estilos de pasos de pipeline visual */
+        .pipeline-step {
+            transition: all 0.5s ease-in-out;
+        }
+
+        .pipeline-step.active {
+            border-color: #00f2fe;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
+            background: rgba(0, 242, 254, 0.1);
+        }
+
+        .pipeline-step.completed {
+            border-color: #10b981;
+            background: rgba(16, 185, 129, 0.08);
+        }
+
+        /* Switch platform selector styles */
+        .platform-btn {
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        
+        .platform-btn.active {
+            background: linear-gradient(135deg, rgba(115, 3, 192, 0.4), rgba(0, 242, 254, 0.4));
+            border-color: #00f2fe;
+            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+        }
+
+        /* Sidebar active style */
+        .sidebar-link {
+            transition: all 0.25s ease-in-out;
+            position: relative;
+        }
+        
+        .sidebar-link::before {
+            content: '';
+            position: absolute;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%) scaleX(0);
+            height: 70%;
+            width: 4px;
+            background: linear-gradient(to bottom, #00f2fe, #ec38bc);
+            border-radius: 0 4px 4px 0;
+            transition: transform 0.25s ease;
+            transform-origin: left;
+        }
+
+        .sidebar-link.active {
+            background: rgba(255, 255, 255, 0.06);
+            color: #00f2fe;
+        }
+
+        .sidebar-link.active::before {
+            transform: translateY(-50%) scaleX(1);
+        }
+
+        /* Notificaciones push realistas */
+        .notification-toast {
+            animation: slideInRight 0.3s ease-out forwards;
+        }
+
+        @keyframes slideInRight {
+            0% { transform: translateX(120%); opacity: 0; }
+            100% { transform: translateX(0); opacity: 1; }
+        }
+
+        /* Neon circles decoration */
+        .neon-circle {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(120px);
+            z-index: -10;
+            opacity: 0.25;
+        }
+
+        .neon-1 {
+            width: 500px;
+            height: 500px;
+            background: #7303c0;
+            top: -10%;
+            right: -10%;
+        }
+
+        .neon-2 {
+            width: 600px;
+            height: 600px;
+            background: #00f2fe;
+            bottom: -10%;
+            left: -10%;
+        }
+
+        .neon-3 {
+            width: 400px;
+            height: 400px;
+            background: #ec38bc;
+            top: 40%;
+            right: 25%;
+        }
+    </style>
+</head>
+<body class="flex overflow-hidden">
+
+    <!-- DECORACIONES DE FONDO NEON -->
+    <div class="neon-circle neon-1"></div>
+    <div class="neon-circle neon-2"></div>
+    <div class="neon-circle neon-3"></div>
+
+    <!-- CONTENEDOR DE TOASTS / NOTIFICACIONES -->
+    <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-3 max-w-sm w-full"></div>
+
+    <!-- SIDEBAR DE NAVEGACIÓN -->
+    <aside id="sidebar" class="bg-glass border-r border-white/5 w-72 h-screen fixed md:translate-x-0 -translate-x-full transition-transform duration-300 ease-in-out z-40 flex flex-col justify-between">
+        <!-- Logo Header -->
+        <div class="p-6 border-b border-white/5 flex items-center gap-3">
+            <div class="w-10 h-10 rounded-xl gradient-btn flex items-center justify-center text-white text-xl shadow-lg shadow-purple-500/20">
+                <i class="fa-solid fa-rocket animate-float"></i>
+            </div>
+            <div>
+                <h1 class="font-orbitron font-extrabold text-lg tracking-wider text-white flex items-center gap-1">
+                    APP<span class="gradient-text">FORGE</span>
+                </h1>
+                <p class="text-[9px] uppercase tracking-[0.25em] text-cyan-400 font-bold font-mono">Cloud Compiler AI</p>
+            </div>
+        </div>
+
+        <!-- Menú de Navegación -->
+        <nav class="flex-1 py-6 px-4 overflow-y-auto space-y-1">
+            <p class="px-4 text-[10px] uppercase tracking-widest text-slate-500 font-bold mb-3">PANEL PRINCIPAL</p>
+            
+            <a href="#" onclick="showSection('dashboard', this)" class="sidebar-link active flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/5">
+                <i class="fa-solid fa-chart-line w-5 text-slate-400"></i>
+                <span class="font-medium text-sm">Dashboard</span>
+            </a>
+
+            <a href="#" onclick="showSection('new-build', this)" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/5">
+                <i class="fa-solid fa-plus-circle w-5 text-slate-400"></i>
+                <span class="font-medium text-sm">Nueva Compilación</span>
+            </a>
+
+            <a href="#" onclick="showSection('my-projects', this)" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/5">
+                <i class="fa-solid fa-folder-open w-5 text-slate-400"></i>
+                <span class="font-medium text-sm">Mis Proyectos</span>
+            </a>
+
+            <a href="#" onclick="showSection('build-history', this)" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/5">
+                <i class="fa-solid fa-clock-rotate-left w-5 text-slate-400"></i>
+                <span class="font-medium text-sm">Historial de Builds</span>
+                <span class="ml-auto text-[10px] bg-cyan-500/20 text-cyan-400 px-2 py-0.5 rounded-full font-bold">12</span>
+            </a>
+
+            <p class="px-4 text-[10px] uppercase tracking-widest text-slate-500 font-bold mt-6 mb-3">DOCUMENTACIÓN Y PLANES</p>
+
+            <a href="#" onclick="showSection('pricing', this)" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/5">
+                <i class="fa-solid fa-tags w-5 text-slate-400"></i>
+                <span class="font-medium text-sm">Precios / Planes</span>
+            </a>
+
+            <a href="#" onclick="showSection('user-manual', this)" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/5">
+                <i class="fa-solid fa-book-open w-5 text-slate-400"></i>
+                <span class="font-medium text-sm">Manual de Usuario</span>
+            </a>
+
+            <a href="#" onclick="showSection('tech-sheet', this)" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/5">
+                <i class="fa-solid fa-gears w-5 text-slate-400"></i>
+                <span class="font-medium text-sm">Hoja Técnica</span>
+            </a>
+
+            <p class="px-4 text-[10px] uppercase tracking-widest text-slate-500 font-bold mt-6 mb-3">SOPORTE Y CUENTA</p>
+
+            <a href="#" onclick="showSection('my-account', this)" class="sidebar-link flex items-center gap-3 px-4 py-3 rounded-xl text-slate-300 hover:text-white hover:bg-white/5">
+                <i class="fa-solid fa-user-gear w-5 text-slate-400"></i>
+                <span class="font-medium text-sm">Mi Cuenta / Plan</span>
+            </a>
+        </nav>
+
+        <!-- Sidebar Footer / Perfil Rápido -->
+        <div class="p-4 border-t border-white/5 bg-slate-950/40">
+            <div class="flex items-center gap-3 p-2 rounded-xl">
+                <div class="relative">
+                    <img src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=256" alt="Avatar" class="w-10 h-10 rounded-xl object-cover border border-purple-500/50">
+                    <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 border-2 border-slate-950 rounded-full"></div>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <h4 class="text-xs font-semibold text-white truncate">Sofía Rodríguez</h4>
+                    <p class="text-[10px] text-cyan-400 font-mono truncate font-semibold">PLAN MENSUAL PRO</p>
+                </div>
+                <button onclick="toggleLogoutDemo()" class="text-slate-400 hover:text-rose-400 transition-colors">
+                    <i class="fa-solid fa-right-from-bracket"></i>
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <!-- MOBILE MENU OVERLAY -->
+    <div id="sidebar-overlay" onclick="toggleSidebar()" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-30 hidden md:hidden"></div>
+
+    <!-- CONTENIDO PRINCIPAL -->
+    <main class="flex-1 flex flex-col md:ml-72 min-h-screen overflow-y-auto">
+        <!-- HEADER SUPERIOR -->
+        <header class="bg-glass border-b border-white/5 h-20 px-6 flex items-center justify-between sticky top-0 z-20">
+            <!-- Botón toggle de Sidebar para móviles -->
+            <button onclick="toggleSidebar()" class="md:hidden text-white text-xl p-2 rounded-lg bg-white/5 hover:bg-white/10">
+                <i class="fa-solid fa-bars"></i>
+            </button>
+
+            <!-- Buscador o Mensaje de Bienvenida -->
+            <div class="hidden sm:flex items-center gap-3 bg-white/5 border border-white/5 px-4 py-2 rounded-xl w-72 focus-within:border-cyan-500/50 transition-all">
+                <i class="fa-solid fa-magnifying-glass text-slate-400 text-xs"></i>
+                <input type="text" placeholder="Buscar compilaciones o proyectos..." class="bg-transparent border-none text-xs text-white focus:outline-none w-full placeholder:text-slate-500">
+            </div>
+
+            <!-- Acciones rápidas (Notificaciones, Monedas, Demo Actions) -->
+            <div class="flex items-center gap-4">
+                <!-- Status Badge Compilador -->
+                <div class="hidden lg:flex items-center gap-2 bg-green-500/10 border border-green-500/30 text-green-400 px-3 py-1.5 rounded-full text-[11px] font-semibold">
+                    <span class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                    Servidores Cloud Activos (99.98% SLA)
+                </div>
+
+                <!-- Créditos de Compilación -->
+                <div class="bg-purple-500/10 border border-purple-500/30 text-purple-300 px-3 py-1.5 rounded-full text-xs font-mono font-bold flex items-center gap-1.5">
+                    <i class="fa-solid fa-bolt text-amber-400"></i>
+                    <span>88 / 100 Builds Restantes</span>
+                </div>
+
+                <!-- Notificaciones Dropdown -->
+                <div class="relative">
+                    <button onclick="toggleNotificationDropdown()" class="w-10 h-10 rounded-xl bg-white/5 hover:bg-white/10 border border-white/5 flex items-center justify-center text-slate-300 transition-colors relative">
+                        <i class="fa-regular fa-bell"></i>
+                        <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-pink-500 rounded-full"></span>
+                    </button>
+                    <!-- Menú Desplegable de Notificaciones (Simulado) -->
+                    <div id="notification-dropdown" class="absolute right-0 mt-3 w-80 bg-glass rounded-2xl border border-white/10 shadow-2xl p-4 hidden z-50">
+                        <div class="flex items-center justify-between pb-3 border-b border-white/5 mb-3">
+                            <span class="text-xs font-bold text-white uppercase tracking-wider">Notificaciones Recientes</span>
+                            <span class="text-[10px] text-cyan-400 cursor-pointer hover:underline" onclick="clearNotifications()">Marcar leídas</span>
+                        </div>
+                        <div class="space-y-3 max-h-64 overflow-y-auto" id="notification-list">
+                            <div class="p-2 bg-white/5 rounded-lg flex gap-3">
+                                <div class="text-green-400 mt-0.5"><i class="fa-solid fa-circle-check"></i></div>
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-200">Build #841 Complilado</p>
+                                    <p class="text-[10px] text-slate-400">Tu APK está lista para descarga.</p>
+                                    <span class="text-[8px] text-slate-500">Hace 10 mins</span>
+                                </div>
+                            </div>
+                            <div class="p-2 bg-white/5 rounded-lg flex gap-3">
+                                <div class="text-purple-400 mt-0.5"><i class="fa-solid fa-wand-magic-sparkles"></i></div>
+                                <div>
+                                    <p class="text-xs font-semibold text-slate-200">Optimización IA Exitosa</p>
+                                    <p class="text-[10px] text-slate-400">Se corrigieron 4 dependencias críticas.</p>
+                                    <span class="text-[8px] text-slate-500">Hace 1 hora</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Referidos / Ganar Créditos -->
+                <button onclick="openInviteFriendModal()" class="gradient-btn text-white text-xs px-4 py-2.5 rounded-xl font-semibold flex items-center gap-2 shadow-lg shadow-purple-500/20">
+                    <i class="fa-solid fa-gift"></i>
+                    <span class="hidden sm:inline">Invitar Amigos</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- SECCIONES DE CONTENIDO -->
+        <div class="p-6 flex-1 max-w-7xl w-full mx-auto space-y-6">
+
+            <!-- ================= SECCIÓN 1: DASHBOARD PRINCIPAL ================= -->
+            <section id="sec-dashboard" class="space-y-6">
+                <!-- Banner de bienvenida -->
+                <div class="bg-glass-card rounded-3xl p-8 border border-white/5 relative overflow-hidden flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6">
+                    <div class="absolute -right-20 -top-20 w-80 h-80 bg-gradient-to-br from-purple-600 to-cyan-500 rounded-full opacity-10 filter blur-3xl pointer-events-none"></div>
+                    <div class="space-y-2 max-w-xl">
+                        <div class="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 px-3 py-1 rounded-full text-xs font-semibold">
+                            <i class="fa-solid fa-sparkles"></i> Motores de IA actualizados a Claude 3.5 Sonnet
+                        </div>
+                        <h2 class="text-3xl font-extrabold text-white tracking-tight">¡Bienvenida de nuevo, <span class="gradient-text">Sofía</span>!</h2>
+                        <p class="text-sm text-slate-300">Tienes todos tus servidores listos para compilar. Tu suscripción PRO se encuentra activa y cuentas con velocidad prioritaria ilimitada.</p>
+                    </div>
+                    <div class="flex gap-4 flex-wrap w-full lg:w-auto">
+                        <button onclick="goToNewBuild()" class="gradient-btn text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 flex-1 lg:flex-initial justify-center shadow-lg shadow-purple-500/30">
+                            <i class="fa-solid fa-bolt"></i> Nueva Compilación
+                        </button>
+                        <button onclick="showSection('user-manual')" class="bg-white/5 hover:bg-white/10 border border-white/10 text-slate-200 px-6 py-3 rounded-2xl font-bold flex items-center gap-2 flex-1 lg:flex-initial justify-center transition-all">
+                            <i class="fa-solid fa-book"></i> Ver Manual
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tarjetas de Estadísticas Globales -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <div class="bg-glass-card p-6 rounded-2xl border border-white/5 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-cubes"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Total Compilaciones</p>
+                            <h3 class="text-2xl font-black text-white mt-1">114</h3>
+                            <span class="text-[10px] text-green-400 font-semibold"><i class="fa-solid fa-arrow-trend-up"></i> +12 esta semana</span>
+                        </div>
+                    </div>
+                    <div class="bg-glass-card p-6 rounded-2xl border border-white/5 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-folder-tree"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Proyectos Activos</p>
+                            <h3 class="text-2xl font-black text-white mt-1">8</h3>
+                            <span class="text-[10px] text-cyan-400 font-semibold"><i class="fa-solid fa-plus"></i> Creado hace 2 días</span>
+                        </div>
+                    </div>
+                    <div class="bg-glass-card p-6 rounded-2xl border border-white/5 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-pink-500/10 text-pink-400 border border-pink-500/20 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Correcciones IA</p>
+                            <h3 class="text-2xl font-black text-white mt-1">347</h3>
+                            <span class="text-[10px] text-pink-400 font-semibold"><i class="fa-solid fa-circle-info"></i> 99.4% de tasa de éxito</span>
+                        </div>
+                    </div>
+                    <div class="bg-glass-card p-6 rounded-2xl border border-white/5 flex items-center gap-4">
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20 flex items-center justify-center text-xl">
+                            <i class="fa-solid fa-circle-nodes"></i>
+                        </div>
+                        <div>
+                            <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Consumo API Cloud</p>
+                            <h3 class="text-2xl font-black text-white mt-1">4.2K</h3>
+                            <span class="text-[10px] text-slate-400 font-semibold">Llamadas REST este mes</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Gráfico de Performance & Registro de Actividad Reciente -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Monitor de Servidor Compilador -->
+                    <div class="bg-glass p-6 rounded-3xl border border-white/5 lg:col-span-2 space-y-4">
+                        <div class="flex items-center justify-between">
+                            <div>
+                                <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                    <i class="fa-solid fa-server text-cyan-400"></i> Estado de Infraestructura de Compilación
+                                </h3>
+                                <p class="text-xs text-slate-400">Monitoreo en tiempo real de nodos en Ciudad de México, Ashburn y Frankfurt</p>
+                            </div>
+                            <span class="text-xs text-green-400 font-mono font-bold bg-green-400/10 border border-green-500/20 px-2 py-1 rounded">ESTABLE</span>
+                        </div>
+                        <!-- Canvas / Grafico Simulado de Nodos -->
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-2">
+                            <div class="bg-slate-900/50 p-4 rounded-xl border border-white/5">
+                                <p class="text-[10px] text-slate-400 uppercase tracking-widest">Nodo Latam-1</p>
+                                <div class="text-xl font-bold text-white mt-1 font-mono">14ms</div>
+                                <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                                    <div class="bg-green-500 h-full w-[28%]"></div>
+                                </div>
+                                <span class="text-[9px] text-slate-500">Carga CPU: 28%</span>
+                            </div>
+                            <div class="bg-slate-900/50 p-4 rounded-xl border border-white/5">
+                                <p class="text-[10px] text-slate-400 uppercase tracking-widest">Nodo US-East</p>
+                                <div class="text-xl font-bold text-white mt-1 font-mono">38ms</div>
+                                <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                                    <div class="bg-yellow-500 h-full w-[65%]"></div>
+                                </div>
+                                <span class="text-[9px] text-slate-500">Carga CPU: 65%</span>
+                            </div>
+                            <div class="bg-slate-900/50 p-4 rounded-xl border border-white/5">
+                                <p class="text-[10px] text-slate-400 uppercase tracking-widest">Nodo EU-West</p>
+                                <div class="text-xl font-bold text-white mt-1 font-mono">112ms</div>
+                                <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                                    <div class="bg-green-500 h-full w-[42%]"></div>
+                                </div>
+                                <span class="text-[9px] text-slate-500">Carga CPU: 42%</span>
+                            </div>
+                            <div class="bg-slate-900/50 p-4 rounded-xl border border-white/5">
+                                <p class="text-[10px] text-slate-400 uppercase tracking-widest">Motor IA-Agent</p>
+                                <div class="text-xl font-bold text-white mt-1 font-mono">2.4s</div>
+                                <div class="w-full bg-slate-800 h-1.5 rounded-full mt-2 overflow-hidden">
+                                    <div class="bg-purple-500 h-full w-[88%]"></div>
+                                </div>
+                                <span class="text-[9px] text-slate-500">Uso Memoria: 88%</span>
+                            </div>
+                        </div>
+
+                        <!-- Barra de carga general -->
+                        <div class="space-y-2 pt-4 border-t border-white/5">
+                            <div class="flex justify-between text-xs font-medium">
+                                <span class="text-slate-300">Capacidad Total de Compilación Asignada</span>
+                                <span class="text-cyan-400 font-mono font-bold">18% (Disponibilidad Premium Máxima)</span>
+                            </div>
+                            <div class="w-full bg-slate-900 h-3 rounded-full overflow-hidden border border-white/5 p-0.5">
+                                <div class="bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 h-full rounded-full transition-all duration-1000" style="width: 18%"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Pipeline AI Mini-Status -->
+                    <div class="bg-glass p-6 rounded-3xl border border-white/5 space-y-4 flex flex-col justify-between">
+                        <div>
+                            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                                <i class="fa-solid fa-wand-magic-sparkles text-pink-400"></i> Resumen de Agente IA
+                            </h3>
+                            <p class="text-xs text-slate-400">Nuestro compilador incluye optimización automática de código JS/CSS.</p>
+                        </div>
+                        <div class="space-y-3">
+                            <div class="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 border border-white/5">
+                                <div class="w-8 h-8 rounded-lg bg-pink-500/10 text-pink-400 flex items-center justify-center text-sm">
+                                    <i class="fa-solid fa-bug-slash"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-xs font-semibold text-white">Auto-corrección de Bugs</p>
+                                    <p class="text-[10px] text-slate-400">Habilitado - Optimiza errores sintácticos</p>
+                                </div>
+                                <span class="w-2.5 h-2.5 bg-green-500 rounded-full"></span>
+                            </div>
+                            <div class="flex items-center gap-3 p-2.5 rounded-xl bg-white/5 border border-white/5">
+                                <div class="w-8 h-8 rounded-lg bg-blue-500/10 text-blue-400 flex items-center justify-center text-sm">
+                                    <i class="fa-solid fa-shield-halved"></i>
+                                </div>
+                                <div class="flex-1">
+                                    <p class="text-xs font-semibold text-white">Cifrado de Firma Oficial</p>
+                                    <p class="text-[10px] text-slate-400">Keystore de Android auto-firmado</p>
+                                </div>
+                                <span class="w-2.5 h-2.5 bg-green-500 rounded-full"></span>
+                            </div>
+                        </div>
+                        <button onclick="goToNewBuild()" class="w-full py-2.5 bg-white/5 hover:bg-white/10 text-white rounded-xl text-xs font-bold transition-all border border-white/10">
+                            Iniciar Compilador Completo
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Tabla de Compilaciones Recientes en Dashboard -->
+                <div class="bg-glass p-6 rounded-3xl border border-white/5 space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h3 class="text-lg font-bold text-white flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-purple-400"></i> Últimas Compilaciones del Sistema
+                        </h3>
+                        <button onclick="showSection('build-history')" class="text-xs text-cyan-400 hover:underline">Ver historial completo</button>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-white/5 text-[10px] text-slate-400 uppercase tracking-wider">
+                                    <th class="py-3 px-4">Build ID</th>
+                                    <th class="py-3 px-4">Nombre Proyecto</th>
+                                    <th class="py-3 px-4">Plataforma</th>
+                                    <th class="py-3 px-4">Fecha</th>
+                                    <th class="py-3 px-4">Tamaño</th>
+                                    <th class="py-3 px-4">Estado</th>
+                                    <th class="py-3 px-4 text-right">Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-xs divide-y divide-white/5 text-slate-300">
+                                <tr>
+                                    <td class="py-4 px-4 font-mono font-bold text-cyan-400">#AF-841</td>
+                                    <td class="py-4 px-4 font-semibold text-white">E-Commerce App</td>
+                                    <td class="py-4 px-4"><i class="fa-brands fa-android text-emerald-400 mr-1"></i> Android (APK)</td>
+                                    <td class="py-4 px-4">Hoy, 12:44 PM</td>
+                                    <td class="py-4 px-4">18.4 MB</td>
+                                    <td class="py-4 px-4"><span class="bg-green-500/10 text-green-400 border border-green-500/30 px-2 py-1 rounded text-[10px] font-bold">COMPLETADO</span></td>
+                                    <td class="py-4 px-4 text-right">
+                                        <button class="text-slate-300 hover:text-cyan-400 bg-white/5 hover:bg-cyan-500/10 p-2 rounded-lg border border-white/5 transition-all" onclick="downloadBuildDemo('AF-841')">
+                                            <i class="fa-solid fa-download"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-4 px-4 font-mono font-bold text-cyan-400">#AF-840</td>
+                                    <td class="py-4 px-4 font-semibold text-white">App de Domicilios</td>
+                                    <td class="py-4 px-4"><i class="fa-brands fa-apple text-slate-300 mr-1"></i> iOS (IPA)</td>
+                                    <td class="py-4 px-4">Ayer, 06:15 PM</td>
+                                    <td class="py-4 px-4">34.1 MB</td>
+                                    <td class="py-4 px-4"><span class="bg-green-500/10 text-green-400 border border-green-500/30 px-2 py-1 rounded text-[10px] font-bold">COMPLETADO</span></td>
+                                    <td class="py-4 px-4 text-right">
+                                        <button class="text-slate-300 hover:text-cyan-400 bg-white/5 hover:bg-cyan-500/10 p-2 rounded-lg border border-white/5 transition-all" onclick="downloadBuildDemo('AF-840')">
+                                            <i class="fa-solid fa-download"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-4 px-4 font-mono font-bold text-cyan-400">#AF-838</td>
+                                    <td class="py-4 px-4 font-semibold text-white">Dashboard IoT</td>
+                                    <td class="py-4 px-4"><i class="fa-solid fa-mobile-screen mr-1 text-purple-400"></i> Ambas (APK + IPA)</td>
+                                    <td class="py-4 px-4">07 Jul 2026</td>
+                                    <td class="py-4 px-4">42.8 MB</td>
+                                    <td class="py-4 px-4"><span class="bg-green-500/10 text-green-400 border border-green-500/30 px-2 py-1 rounded text-[10px] font-bold">COMPLETADO</span></td>
+                                    <td class="py-4 px-4 text-right">
+                                        <button class="text-slate-300 hover:text-cyan-400 bg-white/5 hover:bg-cyan-500/10 p-2 rounded-lg border border-white/5 transition-all" onclick="downloadBuildDemo('AF-838')">
+                                            <i class="fa-solid fa-download"></i>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ================= SECCIÓN 2: NUEVA COMPILACIÓN ================= -->
+            <section id="sec-new-build" class="space-y-6 hidden">
+                <div class="flex items-center justify-between">
+                    <div>
+                        <h2 class="text-3xl font-black text-white tracking-tight flex items-center gap-2">
+                            <i class="fa-solid fa-plus-circle text-cyan-400"></i> Compilar <span class="gradient-text">Nueva Aplicación</span>
+                        </h2>
+                        <p class="text-sm text-slate-400">Sube tu proyecto web, ingresa los parámetros y el Agente de IA creará un APK/IPA nativo en minutos.</p>
+                    </div>
+                    <button onclick="fillFormMock()" class="text-xs bg-white/5 hover:bg-white/10 text-slate-300 px-3 py-1.5 rounded-lg border border-white/5 transition-all">
+                        <i class="fa-solid fa-wand-magic-sparkles text-purple-400 mr-1"></i> Rellenar Datos Demo
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Configuración y Carga de Archivos -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Card Carga de Archivos ZIP / HTML -->
+                        <div class="bg-glass p-8 rounded-3xl border border-white/5 relative overflow-hidden">
+                            <div class="absolute -right-16 -top-16 w-48 h-48 bg-purple-600 rounded-full opacity-10 filter blur-2xl"></div>
+                            
+                            <h3 class="text-md font-bold text-white uppercase tracking-wider mb-4 flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center text-xs font-bold">1</span>
+                                Carga de Archivos de Origen
+                            </h3>
+
+                            <!-- Area de Dropzone -->
+                            <div id="dropzone" class="border-2 border-dashed border-slate-700 hover:border-cyan-400/70 bg-slate-900/40 rounded-2xl p-8 flex flex-col items-center justify-center text-center cursor-pointer transition-all relative overflow-hidden group">
+                                <input type="file" id="file-input" class="hidden" accept=".zip,.html">
+                                <div class="absolute inset-0 bg-gradient-to-tr from-cyan-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div class="w-16 h-16 rounded-2xl bg-white/5 border border-white/5 text-slate-400 group-hover:text-cyan-400 flex items-center justify-center text-2xl mb-4 shadow-inner transition-colors">
+                                    <i class="fa-solid fa-cloud-arrow-up animate-pulse"></i>
+                                </div>
+                                <h4 class="text-sm font-bold text-white mb-1">Arrastra tu archivo ZIP o HTML aquí</h4>
+                                <p class="text-xs text-slate-400 max-w-sm">Sube tu proyecto que contenga al menos un archivo <span class="text-cyan-300 font-mono">index.html</span> principal. Tamaño máx: 500MB.</p>
+                                <div class="mt-4 flex gap-2">
+                                    <span class="bg-white/5 border border-white/5 text-slate-300 px-3 py-1 rounded text-[10px] font-mono"><i class="fa-solid fa-file-zipper text-yellow-500"></i> .ZIP</span>
+                                    <span class="bg-white/5 border border-white/5 text-slate-300 px-3 py-1 rounded text-[10px] font-mono"><i class="fa-solid fa-code text-cyan-400"></i> .HTML</span>
+                                </div>
+                            </div>
+
+                            <!-- Estado del archivo seleccionado -->
+                            <div id="file-selected-status" class="mt-4 p-3 bg-cyan-500/10 border border-cyan-500/30 rounded-xl hidden items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <div class="text-cyan-400 text-lg"><i class="fa-solid fa-file-zipper"></i></div>
+                                    <div>
+                                        <p class="text-xs font-semibold text-white" id="selected-file-name">proyecto_final.zip</p>
+                                        <p class="text-[10px] text-slate-400" id="selected-file-size">14.2 MB</p>
+                                    </div>
+                                </div>
+                                <button onclick="resetFileSelector()" class="text-slate-400 hover:text-red-400"><i class="fa-solid fa-trash-can"></i></button>
+                            </div>
+                        </div>
+
+                        <!-- Configuración Básica de la App -->
+                        <div class="bg-glass p-8 rounded-3xl border border-white/5 space-y-6">
+                            <h3 class="text-md font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                                <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center text-xs font-bold">2</span>
+                                Configuración de Aplicación
+                            </h3>
+
+                            <!-- Plataformas Destino -->
+                            <div class="space-y-3">
+                                <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Plataformas Destino</label>
+                                <div class="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                                    <button onclick="setPlatform('android')" id="plat-android" class="platform-btn active p-4 bg-slate-900/40 rounded-xl border border-white/5 flex flex-col items-center justify-center gap-2 hover:border-white/20">
+                                        <i class="fa-brands fa-android text-2xl text-emerald-400"></i>
+                                        <span class="text-xs font-bold text-white">Android (.apk)</span>
+                                        <span class="text-[9px] text-slate-400">Soporta Android 6.0+</span>
+                                    </button>
+                                    <button onclick="setPlatform('ios')" id="plat-ios" class="platform-btn p-4 bg-slate-900/40 rounded-xl border border-white/5 flex flex-col items-center justify-center gap-2 hover:border-white/20">
+                                        <i class="fa-brands fa-apple text-2xl text-slate-300"></i>
+                                        <span class="text-xs font-bold text-white">iOS (.ipa)</span>
+                                        <span class="text-[9px] text-slate-400">Soporta iOS 14+</span>
+                                    </button>
+                                    <button onclick="setPlatform('both')" id="plat-both" class="platform-btn p-4 bg-slate-900/40 rounded-xl border border-white/5 flex flex-col items-center justify-center gap-2 hover:border-white/20">
+                                        <i class="fa-solid fa-mobile-screen-button text-2xl text-purple-400"></i>
+                                        <span class="text-xs font-bold text-white">Ambas Plataformas</span>
+                                        <span class="text-[9px] text-slate-400">Build Dual Paralelo</span>
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Inputs Generales -->
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Nombre de la Aplicación</label>
+                                    <div class="bg-slate-950/40 border border-white/5 focus-within:border-cyan-500/50 rounded-xl px-4 py-3 flex items-center gap-3">
+                                        <i class="fa-solid fa-signature text-slate-400"></i>
+                                        <input type="text" id="app-name" placeholder="Ej: Mi Súper App" class="bg-transparent border-none text-sm text-white focus:outline-none w-full placeholder:text-slate-600">
+                                    </div>
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Versión de la App</label>
+                                    <div class="bg-slate-950/40 border border-white/5 focus-within:border-cyan-500/50 rounded-xl px-4 py-3 flex items-center gap-3">
+                                        <i class="fa-solid fa-code-branch text-slate-400"></i>
+                                        <input type="text" id="app-version" placeholder="Ej: 1.0.0" class="bg-transparent border-none text-sm text-white focus:outline-none w-full placeholder:text-slate-600" value="1.0.0">
+                                    </div>
+                                </div>
+                                <div class="space-y-2 sm:col-span-2">
+                                    <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Identificador de Paquete (Package Name)</label>
+                                    <div class="bg-slate-950/40 border border-white/5 focus-within:border-cyan-500/50 rounded-xl px-4 py-3 flex items-center gap-3">
+                                        <i class="fa-solid fa-id-card text-slate-400"></i>
+                                        <input type="text" id="app-package" placeholder="Ej: com.empresa.mi_super_app" class="bg-transparent border-none text-sm font-mono text-white focus:outline-none w-full placeholder:text-slate-600">
+                                    </div>
+                                    <span class="text-[10px] text-slate-500 block">Formato estándar de ID reversible, único en tiendas. Sin caracteres especiales ni espacios.</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Configuración Avanzada Plegable -->
+                        <div class="bg-glass rounded-3xl border border-white/5 overflow-hidden transition-all duration-300">
+                            <!-- Toggle Button -->
+                            <button onclick="toggleAdvancedSettings()" class="w-full p-6 flex items-center justify-between hover:bg-white/5 text-left">
+                                <h3 class="text-md font-bold text-white uppercase tracking-wider flex items-center gap-2">
+                                    <span class="w-6 h-6 rounded-full bg-purple-500/20 text-purple-400 flex items-center justify-center text-xs font-bold">3</span>
+                                    Configuración Avanzada (Opcional)
+                                </h3>
+                                <div class="text-slate-400 transition-transform duration-300" id="advanced-chevron">
+                                    <i class="fa-solid fa-chevron-down"></i>
+                                </div>
+                            </button>
+
+                            <!-- Contenido Avanzado -->
+                            <div id="advanced-settings-content" class="p-6 border-t border-white/5 space-y-6 hidden bg-slate-950/10">
+                                <!-- Permisos de Android -->
+                                <div class="space-y-3">
+                                    <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Permisos de Android Requeridos</label>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                                        <label class="flex items-center gap-3 p-3 bg-slate-900/40 border border-white/5 rounded-xl cursor-pointer hover:bg-slate-900/60">
+                                            <input type="checkbox" checked class="accent-cyan-500 w-4 h-4">
+                                            <div>
+                                                <span class="text-xs font-bold text-white">Internet</span>
+                                                <p class="text-[9px] text-slate-500">Acceso a red externa</p>
+                                            </div>
+                                        </label>
+                                        <label class="flex items-center gap-3 p-3 bg-slate-900/40 border border-white/5 rounded-xl cursor-pointer hover:bg-slate-900/60">
+                                            <input type="checkbox" class="accent-cyan-500 w-4 h-4" id="perm-camera">
+                                            <div>
+                                                <span class="text-xs font-bold text-white">Cámara</span>
+                                                <p class="text-[9px] text-slate-500">Uso de cámara nativa</p>
+                                            </div>
+                                        </label>
+                                        <label class="flex items-center gap-3 p-3 bg-slate-900/40 border border-white/5 rounded-xl cursor-pointer hover:bg-slate-900/60">
+                                            <input type="checkbox" class="accent-cyan-500 w-4 h-4" id="perm-location">
+                                            <div>
+                                                <span class="text-xs font-bold text-white">Geolocalización</span>
+                                                <p class="text-[9px] text-slate-500">Acceso a GPS preciso</p>
+                                            </div>
+                                        </label>
+                                        <label class="flex items-center gap-3 p-3 bg-slate-900/40 border border-white/5 rounded-xl cursor-pointer hover:bg-slate-900/60">
+                                            <input type="checkbox" class="accent-cyan-500 w-4 h-4" id="perm-notifications">
+                                            <div>
+                                                <span class="text-xs font-bold text-white">Notificaciones</span>
+                                                <p class="text-[9px] text-slate-500">Push locales y remotas</p>
+                                            </div>
+                                        </label>
+                                        <label class="flex items-center gap-3 p-3 bg-slate-900/40 border border-white/5 rounded-xl cursor-pointer hover:bg-slate-900/60">
+                                            <input type="checkbox" class="accent-cyan-500 w-4 h-4" id="perm-storage">
+                                            <div>
+                                                <span class="text-xs font-bold text-white">Almacenamiento</span>
+                                                <p class="text-[9px] text-slate-500">Lectura/Escritura de archivos</p>
+                                            </div>
+                                        </label>
+                                        <label class="flex items-center gap-3 p-3 bg-slate-900/40 border border-white/5 rounded-xl cursor-pointer hover:bg-slate-900/60">
+                                            <input type="checkbox" class="accent-cyan-500 w-4 h-4" id="perm-audio">
+                                            <div>
+                                                <span class="text-xs font-bold text-white">Micrófono</span>
+                                                <p class="text-[9px] text-slate-500">Grabación de audio nativo</p>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <!-- Orientación, Splash Screen y Custom Icon -->
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                                    <!-- Orientación de Pantalla -->
+                                    <div class="space-y-2">
+                                        <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Orientación de Pantalla</label>
+                                        <select id="app-orientation" class="bg-slate-950/40 border border-white/5 focus:border-cyan-500/50 text-slate-200 text-sm rounded-xl p-3 w-full focus:outline-none">
+                                            <option value="portrait" class="bg-slate-950">Vertical (Por Defecto)</option>
+                                            <option value="landscape" class="bg-slate-950">Horizontal</option>
+                                            <option value="sensor" class="bg-slate-950">Auto-rotar por Sensor</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Tiempo de Pantalla Splash -->
+                                    <div class="space-y-2">
+                                        <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Pantalla de Carga (Splash)</label>
+                                        <select id="app-splash" class="bg-slate-950/40 border border-white/5 focus:border-cyan-500/50 text-slate-200 text-sm rounded-xl p-3 w-full focus:outline-none">
+                                            <option value="default-spinner" class="bg-slate-950">Logo Central con Spinner (Por Defecto)</option>
+                                            <option value="gradient" class="bg-slate-950">Gradiente con Desvanecimiento</option>
+                                            <option value="none" class="bg-slate-950">Sin Pantalla de Carga (Acceso Directo)</option>
+                                        </select>
+                                    </div>
+
+                                    <!-- Icono de la App -->
+                                    <div class="sm:col-span-2 space-y-2">
+                                        <label class="text-xs font-bold text-slate-300 uppercase tracking-wider block">Icono de la Aplicación (.PNG)</label>
+                                        <div class="flex items-center gap-4">
+                                            <div class="w-16 h-16 rounded-xl bg-slate-900 border border-white/5 flex items-center justify-center text-slate-600 text-2xl overflow-hidden" id="app-icon-preview">
+                                                <i class="fa-regular fa-image"></i>
+                                            </div>
+                                            <div class="flex-1">
+                                                <input type="file" id="app-icon-input" class="hidden" accept="image/png">
+                                                <button type="button" onclick="document.getElementById('app-icon-input').click()" class="bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-white px-4 py-2 rounded-xl transition-all font-semibold">
+                                                    Subir Icono (Recomendado 512x512)
+                                                </button>
+                                                <p class="text-[10px] text-slate-500 mt-1">Si no se sube un icono, se asignará el predeterminado por el compilador.</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sidebar de Compilación Rápida / Resumen y Botón Giga-Compilar -->
+                    <div class="space-y-6">
+                        <div class="bg-glass p-6 rounded-3xl border border-white/5 space-y-6 relative overflow-hidden">
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Resumen de Build</h3>
+                            
+                            <div class="space-y-4 font-mono text-xs">
+                                <div class="flex justify-between pb-2 border-b border-white/5">
+                                    <span class="text-slate-400">Origen:</span>
+                                    <span class="text-white truncate max-w-[150px]" id="summary-file">Ninguno</span>
+                                </div>
+                                <div class="flex justify-between pb-2 border-b border-white/5">
+                                    <span class="text-slate-400">Plataforma:</span>
+                                    <span class="text-cyan-400" id="summary-platform">Android (APK)</span>
+                                </div>
+                                <div class="flex justify-between pb-2 border-b border-white/5">
+                                    <span class="text-slate-400">Nombre:</span>
+                                    <span class="text-white" id="summary-name">-</span>
+                                </div>
+                                <div class="flex justify-between pb-2 border-b border-white/5">
+                                    <span class="text-slate-400">Identificador:</span>
+                                    <span class="text-white truncate max-w-[150px]" id="summary-package">-</span>
+                                </div>
+                                <div class="flex justify-between pb-2 border-b border-white/5">
+                                    <span class="text-slate-400">Velocidad Nodo:</span>
+                                    <span class="text-green-400 font-bold">VIP PRIORITARIA</span>
+                                </div>
+                                <div class="flex justify-between">
+                                    <span class="text-slate-400">Costo Estimado:</span>
+                                    <span class="text-amber-400 font-bold">1 Crédito</span>
+                                </div>
+                            </div>
+
+                            <div class="pt-4 border-t border-white/5">
+                                <button onclick="startBuildProcess()" class="w-full py-4 rounded-2xl font-orbitron font-extrabold text-white text-md tracking-wider gradient-btn animate-pulse-slow shadow-lg hover:shadow-cyan-500/20 flex items-center justify-center gap-2" id="compile-btn">
+                                    ⚡ COMPILAR AHORA
+                                </button>
+                                <p class="text-[9px] text-center text-slate-500 mt-3 uppercase tracking-wider">Al compilar aceptas los Términos de Servicio de AppForge</p>
+                            </div>
+                        </div>
+
+                        <!-- Card Informativa AI -->
+                        <div class="bg-glass p-6 rounded-3xl border border-white/5 space-y-3">
+                            <h4 class="text-xs font-bold text-white uppercase tracking-widest flex items-center gap-1.5">
+                                <i class="fa-solid fa-wand-magic-sparkles text-pink-400"></i> Optimización de Código
+                            </h4>
+                            <p class="text-[11px] text-slate-400 leading-relaxed">Nuestra red neuronal analizará tu proyecto ZIP en busca de scripts rotos, rutas absolutas conflictivas, errores de CORS y dependencias inestables de NPM antes de empaquetar.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ================= SECCIÓN 3: PIPELINE VISUAL DE IA ================= -->
+            <section id="sec-pipeline" class="space-y-6 hidden">
+                <div class="bg-glass-card rounded-3xl p-8 border border-cyan-500/20 relative overflow-hidden">
+                    <div class="absolute inset-0 bg-gradient-to-r from-purple-900/10 via-cyan-950/10 to-transparent"></div>
+                    <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
+                        <div class="space-y-2">
+                            <div class="inline-flex items-center gap-2 bg-cyan-500/15 border border-cyan-500/40 text-cyan-300 px-3 py-1 rounded-full text-xs font-bold">
+                                <i class="fa-solid fa-spinner animate-spin"></i> PIPELINE COMPILADOR DE IA EN EJECUCIÓN
+                            </div>
+                            <h2 class="text-3xl font-extrabold text-white tracking-tight" id="pipeline-title-app">Compilando Mi Aplicación</h2>
+                            <p class="text-sm text-slate-300">ID de Build: <span class="font-mono text-cyan-400" id="pipeline-build-id">#AF-842</span> | Plataforma: <span class="text-purple-400" id="pipeline-platform-name">Android APK</span></p>
+                        </div>
+                        <div class="flex items-center gap-4 bg-slate-900/60 px-5 py-3 rounded-2xl border border-white/5">
+                            <div class="text-right">
+                                <p class="text-[10px] text-slate-400 uppercase tracking-widest">Tiempo Transcurrido</p>
+                                <p class="text-lg font-mono font-black text-white" id="pipeline-timer">00:00</p>
+                            </div>
+                            <i class="fa-solid fa-hourglass-half text-cyan-400 animate-float text-xl"></i>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Barra de Progreso Giga-Visual -->
+                <div class="grid grid-cols-1 lg:grid-cols-4 gap-6">
+                    
+                    <!-- Pasos del Pipeline -->
+                    <div class="lg:col-span-3 space-y-4">
+                        <div class="bg-glass p-6 rounded-3xl border border-white/5 space-y-4">
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Flujo de Compilación Automatizado</h3>
+                            
+                            <!-- Pasos Individuales -->
+                            <div class="space-y-4">
+                                <!-- Paso 1 -->
+                                <div id="step-1" class="pipeline-step p-4 rounded-2xl border border-white/5 flex items-start sm:items-center gap-4 bg-slate-950/20">
+                                    <div class="step-icon w-10 h-10 rounded-xl bg-slate-800 text-slate-400 flex items-center justify-center text-md font-bold transition-all">
+                                        1
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-sm font-bold text-white">📦 Desempaquetando y analizando archivos...</h4>
+                                        <p class="text-xs text-slate-400">Verificando integridad de archivos HTML, CSS, JavaScript y subestructuras.</p>
+                                    </div>
+                                    <span class="step-badge text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider bg-white/5 px-2 py-1 rounded">En espera</span>
+                                </div>
+
+                                <!-- Paso 2 -->
+                                <div id="step-2" class="pipeline-step p-4 rounded-2xl border border-white/5 flex items-start sm:items-center gap-4 bg-slate-950/20">
+                                    <div class="step-icon w-10 h-10 rounded-xl bg-slate-800 text-slate-400 flex items-center justify-center text-md font-bold transition-all">
+                                        2
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-sm font-bold text-white">🔍 Detectando componentes faltantes...</h4>
+                                        <p class="text-xs text-slate-400">Escaneando librerías requeridas, SDKs nativos y recursos estáticos de iconos.</p>
+                                    </div>
+                                    <span class="step-badge text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider bg-white/5 px-2 py-1 rounded">En espera</span>
+                                </div>
+
+                                <!-- Paso 3 -->
+                                <div id="step-3" class="pipeline-step p-4 rounded-2xl border border-white/5 flex items-start sm:items-center gap-4 bg-slate-950/20">
+                                    <div class="step-icon w-10 h-10 rounded-xl bg-slate-800 text-slate-400 flex items-center justify-center text-md font-bold transition-all">
+                                        3
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-sm font-bold text-white">🤖 IA completando y corrigiendo código...</h4>
+                                        <p class="text-xs text-slate-400">Optimizador heurístico inyectando API de puente Cordova/Capacitor y solucionando CORS.</p>
+                                    </div>
+                                    <span class="step-badge text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider bg-white/5 px-2 py-1 rounded">En espera</span>
+                                </div>
+
+                                <!-- Paso 4 -->
+                                <div id="step-4" class="pipeline-step p-4 rounded-2xl border border-white/5 flex items-start sm:items-center gap-4 bg-slate-950/20">
+                                    <div class="step-icon w-10 h-10 rounded-xl bg-slate-800 text-slate-400 flex items-center justify-center text-md font-bold transition-all">
+                                        4
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-sm font-bold text-white">✅ Verificación final y gestión de licencias...</h4>
+                                        <p class="text-xs text-slate-400">Generación y firma digital del APK/IPA con Keystore/Certificate premium de producción.</p>
+                                    </div>
+                                    <span class="step-badge text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider bg-white/5 px-2 py-1 rounded">En espera</span>
+                                </div>
+
+                                <!-- Paso 5 -->
+                                <div id="step-5" class="pipeline-step p-4 rounded-2xl border border-white/5 flex items-start sm:items-center gap-4 bg-slate-950/20">
+                                    <div class="step-icon w-10 h-10 rounded-xl bg-slate-800 text-slate-400 flex items-center justify-center text-md font-bold transition-all">
+                                        5
+                                    </div>
+                                    <div class="flex-1">
+                                        <h4 class="text-sm font-bold text-white">📦 Empaquetando APK/IPA...</h4>
+                                        <p class="text-xs text-slate-400">Exportando binarios compilados y cargándolos en nuestro servidor de almacenamiento seguro de alta velocidad.</p>
+                                    </div>
+                                    <span class="step-badge text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider bg-white/5 px-2 py-1 rounded">En espera</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Terminal de Logs de la IA en tiempo real -->
+                    <div class="bg-glass-card rounded-3xl p-6 border border-white/5 flex flex-col justify-between h-[520px] space-y-4">
+                        <div class="flex items-center justify-between pb-3 border-b border-white/5">
+                            <span class="text-xs font-bold text-white uppercase tracking-wider flex items-center gap-1.5">
+                                <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+                                Consola de Compilación AI
+                            </span>
+                            <span class="text-[9px] font-mono text-cyan-400 font-bold uppercase tracking-wider bg-cyan-400/10 px-2 py-0.5 rounded">STREAM_ACTIVE</span>
+                        </div>
+                        
+                        <!-- Terminal de texto -->
+                        <div id="pipeline-terminal-logs" class="flex-1 font-mono text-[10px] text-emerald-400 overflow-y-auto space-y-2 p-3 bg-black/70 rounded-xl border border-white/5 scrollbar-thin select-text">
+                            <p class="text-slate-500">[INFO] Iniciando Pipeline de Compilación AppForge Cloud...</p>
+                            <p class="text-slate-500">[INFO] Esperando señal de inicio del compilador...</p>
+                        </div>
+
+                        <!-- Botones de Acción Posterior al Terminar -->
+                        <div id="pipeline-completed-actions" class="hidden space-y-3 pt-3 border-t border-white/5">
+                            <button onclick="downloadBuildDemo('AF-842')" class="w-full py-3 rounded-xl font-orbitron font-bold text-white text-xs tracking-wider bg-gradient-to-r from-emerald-500 to-teal-500 shadow-lg hover:shadow-emerald-500/20 flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-download"></i> DESCARGAR APK / IPA
+                            </button>
+                            <button onclick="showSection('new-build')" class="w-full py-2.5 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 text-xs font-semibold border border-white/5 transition-all text-center">
+                                Compilar otra aplicación
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ================= SECCIÓN 4: MIS PROYECTOS ================= -->
+            <section id="sec-my-projects" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-3xl font-black text-white tracking-tight flex items-center gap-2">
+                            <i class="fa-solid fa-folder-open text-cyan-400"></i> Mis <span class="gradient-text">Proyectos</span>
+                        </h2>
+                        <p class="text-sm text-slate-400">Administra tus configuraciones, credenciales de firmas y repositorios de código de tus aplicaciones creadas.</p>
+                    </div>
+                    <button onclick="showSection('new-build')" class="gradient-btn text-white text-xs px-5 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-purple-500/20">
+                        <i class="fa-solid fa-plus"></i> Crear Nuevo Proyecto
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- Tarjeta Proyecto 1 -->
+                    <div class="bg-glass-card p-6 rounded-3xl border border-white/5 flex flex-col justify-between space-y-6">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center text-lg shadow-lg">
+                                    <i class="fa-solid fa-cart-shopping"></i>
+                                </div>
+                                <span class="bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold">com.empresa.shop</span>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-white">E-Commerce App</h3>
+                                <p class="text-xs text-slate-400 mt-1 line-clamp-2">Aplicación de tienda virtual construida sobre React y adaptada para compilación híbrida óptima.</p>
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t border-white/5 flex justify-between items-center text-xs">
+                            <span class="text-slate-500"><i class="fa-solid fa-code-branch"></i> v1.4.2</span>
+                            <div class="flex gap-2">
+                                <button onclick="quickBuildProject('E-Commerce App', 'com.empresa.shop')" class="bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/20 p-2 rounded-xl transition-all" title="Compilación Rápida">
+                                    <i class="fa-solid fa-bolt"></i>
+                                </button>
+                                <button onclick="alert('Funcionalidad de configuración del proyecto en desarrollo de interfaz')" class="bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5 p-2 rounded-xl transition-all" title="Configurar">
+                                    <i class="fa-solid fa-gear"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta Proyecto 2 -->
+                    <div class="bg-glass-card p-6 rounded-3xl border border-white/5 flex flex-col justify-between space-y-6">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white flex items-center justify-center text-lg shadow-lg">
+                                    <i class="fa-solid fa-bicycle"></i>
+                                </div>
+                                <span class="bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold">com.empresa.delivery</span>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-white">App de Domicilios</h3>
+                                <p class="text-xs text-slate-400 mt-1 line-clamp-2">Servicio de rastreo de comida en tiempo real con Geolocalización avanzada habilitada en permisos de Android.</p>
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t border-white/5 flex justify-between items-center text-xs">
+                            <span class="text-slate-500"><i class="fa-solid fa-code-branch"></i> v1.0.8</span>
+                            <div class="flex gap-2">
+                                <button onclick="quickBuildProject('App de Domicilios', 'com.empresa.delivery')" class="bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/20 p-2 rounded-xl transition-all" title="Compilación Rápida">
+                                    <i class="fa-solid fa-bolt"></i>
+                                </button>
+                                <button onclick="alert('Funcionalidad de configuración del proyecto en desarrollo de interfaz')" class="bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5 p-2 rounded-xl transition-all" title="Configurar">
+                                    <i class="fa-solid fa-gear"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tarjeta Proyecto 3 -->
+                    <div class="bg-glass-card p-6 rounded-3xl border border-white/5 flex flex-col justify-between space-y-6">
+                        <div class="space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 text-white flex items-center justify-center text-lg shadow-lg">
+                                    <i class="fa-solid fa-microchip"></i>
+                                </div>
+                                <span class="bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold">com.empresa.iot</span>
+                            </div>
+                            <div>
+                                <h3 class="text-base font-bold text-white">Dashboard IoT</h3>
+                                <p class="text-xs text-slate-400 mt-1 line-clamp-2">Panel inteligente para automatización y control de sensores de temperatura domésticos mediante WebSockets.</p>
+                            </div>
+                        </div>
+                        <div class="pt-4 border-t border-white/5 flex justify-between items-center text-xs">
+                            <span class="text-slate-500"><i class="fa-solid fa-code-branch"></i> v2.1.0</span>
+                            <div class="flex gap-2">
+                                <button onclick="quickBuildProject('Dashboard IoT', 'com.empresa.iot')" class="bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/20 p-2 rounded-xl transition-all" title="Compilación Rápida">
+                                    <i class="fa-solid fa-bolt"></i>
+                                </button>
+                                <button onclick="alert('Funcionalidad de configuración del proyecto en desarrollo de interfaz')" class="bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5 p-2 rounded-xl transition-all" title="Configurar">
+                                    <i class="fa-solid fa-gear"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ================= SECCIÓN 5: HISTORIAL DE BUILDS ================= -->
+            <section id="sec-build-history" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-3xl font-black text-white tracking-tight flex items-center gap-2">
+                            <i class="fa-solid fa-clock-rotate-left text-cyan-400"></i> Historial de <span class="gradient-text">Builds</span>
+                        </h2>
+                        <p class="text-sm text-slate-400">Historial completo de empaquetados, binarios firmados y logs de compilaciones exitosas e intentos fallidos.</p>
+                    </div>
+                    <div class="flex items-center gap-3">
+                        <select id="filter-platform" class="bg-glass border border-white/10 text-slate-300 text-xs rounded-xl px-3 py-2 focus:outline-none">
+                            <option value="all">Todas las plataformas</option>
+                            <option value="android">Solo Android (APK)</option>
+                            <option value="ios">Solo iOS (IPA)</option>
+                        </select>
+                        <button onclick="showSection('new-build')" class="bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-400 border border-cyan-500/30 text-xs px-4 py-2.5 rounded-xl font-bold flex items-center gap-1.5 transition-all">
+                            <i class="fa-solid fa-bolt"></i> Compilar Nuevo
+                        </button>
+                    </div>
+                </div>
+
+                <div class="bg-glass p-6 rounded-3xl border border-white/5 space-y-4">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="border-b border-white/5 text-[10px] text-slate-400 uppercase tracking-wider">
+                                    <th class="py-3 px-4">Build ID</th>
+                                    <th class="py-3 px-4">Proyecto</th>
+                                    <th class="py-3 px-4">Plataforma</th>
+                                    <th class="py-3 px-4">Fecha</th>
+                                    <th class="py-3 px-4">Duración</th>
+                                    <th class="py-3 px-4">Tamaño</th>
+                                    <th class="py-3 px-4">Estado</th>
+                                    <th class="py-3 px-4 text-right">Firma / Binario</th>
+                                </tr>
+                            </thead>
+                            <tbody class="text-xs divide-y divide-white/5 text-slate-300">
+                                <tr>
+                                    <td class="py-4 px-4 font-mono font-bold text-cyan-400">#AF-841</td>
+                                    <td class="py-4 px-4">
+                                        <p class="font-semibold text-white">E-Commerce App</p>
+                                        <span class="text-[9px] text-slate-500 font-mono">com.empresa.shop</span>
+                                    </td>
+                                    <td class="py-4 px-4"><i class="fa-brands fa-android text-emerald-400 mr-1"></i> Android (.APK)</td>
+                                    <td class="py-4 px-4">Hoy, 12:44 PM</td>
+                                    <td class="py-4 px-4 font-mono">2m 45s</td>
+                                    <td class="py-4 px-4 font-mono">18.4 MB</td>
+                                    <td class="py-4 px-4"><span class="bg-green-500/10 text-green-400 border border-green-500/30 px-2.5 py-1 rounded text-[10px] font-bold">COMPLETADO</span></td>
+                                    <td class="py-4 px-4 text-right">
+                                        <button onclick="downloadBuildDemo('AF-841')" class="bg-white/5 hover:bg-cyan-500/10 hover:text-cyan-400 border border-white/5 text-slate-200 text-xs px-3 py-1.5 rounded-lg font-bold transition-all inline-flex items-center gap-1">
+                                            <i class="fa-solid fa-download"></i> Descargar
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-4 px-4 font-mono font-bold text-cyan-400">#AF-840</td>
+                                    <td class="py-4 px-4">
+                                        <p class="font-semibold text-white">App de Domicilios</p>
+                                        <span class="text-[9px] text-slate-500 font-mono">com.empresa.delivery</span>
+                                    </td>
+                                    <td class="py-4 px-4"><i class="fa-brands fa-apple text-slate-300 mr-1"></i> iOS (.IPA)</td>
+                                    <td class="py-4 px-4">Ayer, 06:15 PM</td>
+                                    <td class="py-4 px-4 font-mono">3m 12s</td>
+                                    <td class="py-4 px-4 font-mono">34.1 MB</td>
+                                    <td class="py-4 px-4"><span class="bg-green-500/10 text-green-400 border border-green-500/30 px-2.5 py-1 rounded text-[10px] font-bold">COMPLETADO</span></td>
+                                    <td class="py-4 px-4 text-right">
+                                        <button onclick="downloadBuildDemo('AF-840')" class="bg-white/5 hover:bg-cyan-500/10 hover:text-cyan-400 border border-white/5 text-slate-200 text-xs px-3 py-1.5 rounded-lg font-bold transition-all inline-flex items-center gap-1">
+                                            <i class="fa-solid fa-download"></i> Descargar
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-4 px-4 font-mono font-bold text-cyan-400">#AF-839</td>
+                                    <td class="py-4 px-4">
+                                        <p class="font-semibold text-white">App de Domicilios</p>
+                                        <span class="text-[9px] text-slate-500 font-mono">com.empresa.delivery</span>
+                                    </td>
+                                    <td class="py-4 px-4"><i class="fa-brands fa-apple text-slate-300 mr-1"></i> iOS (.IPA)</td>
+                                    <td class="py-4 px-4">08 Jul 2026</td>
+                                    <td class="py-4 px-4 font-mono">1m 15s</td>
+                                    <td class="py-4 px-4 font-mono">-</td>
+                                    <td class="py-4 px-4"><span class="bg-rose-500/10 text-rose-400 border border-rose-500/30 px-2.5 py-1 rounded text-[10px] font-bold">ERROR</span></td>
+                                    <td class="py-4 px-4 text-right">
+                                        <button onclick="alert('LOG DE ERROR #AF-839:\n[ERROR] El archivo de origen ZIP no contiene el archivo principal index.html.\nPor favor verifica tu estructura de carpetas.')" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs px-3 py-1.5 rounded-lg font-bold transition-all inline-flex items-center gap-1">
+                                            <i class="fa-solid fa-bug"></i> Ver Error
+                                        </button>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td class="py-4 px-4 font-mono font-bold text-cyan-400">#AF-838</td>
+                                    <td class="py-4 px-4">
+                                        <p class="font-semibold text-white">Dashboard IoT</p>
+                                        <span class="text-[9px] text-slate-500 font-mono">com.empresa.iot</span>
+                                    </td>
+                                    <td class="py-4 px-4"><i class="fa-solid fa-mobile-screen mr-1 text-purple-400"></i> Ambas (APK + IPA)</td>
+                                    <td class="py-4 px-4">07 Jul 2026</td>
+                                    <td class="py-4 px-4 font-mono">4m 02s</td>
+                                    <td class="py-4 px-4 font-mono">42.8 MB</td>
+                                    <td class="py-4 px-4"><span class="bg-green-500/10 text-green-400 border border-green-500/30 px-2.5 py-1 rounded text-[10px] font-bold">COMPLETADO</span></td>
+                                    <td class="py-4 px-4 text-right">
+                                        <button onclick="downloadBuildDemo('AF-838')" class="bg-white/5 hover:bg-cyan-500/10 hover:text-cyan-400 border border-white/5 text-slate-200 text-xs px-3 py-1.5 rounded-lg font-bold transition-all inline-flex items-center gap-1">
+                                            <i class="fa-solid fa-download"></i> Descargar
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ================= SECCIÓN 6: PRECIOS / PLANES (MXN) ================= -->
+            <section id="sec-pricing" class="space-y-6 hidden">
+                <div class="text-center space-y-3 max-w-2xl mx-auto">
+                    <div class="inline-flex items-center gap-2 bg-purple-500/10 border border-purple-500/30 text-purple-300 px-3 py-1 rounded-full text-xs font-semibold">
+                        💎 PLANES PREMIUM EN PESOS MEXICANOS (MXN)
+                    </div>
+                    <h2 class="text-3xl font-extrabold text-white tracking-tight">Escoge el Plan Adecuado para <span class="gradient-text">Tus Compilaciones</span></h2>
+                    <p class="text-sm text-slate-400">Servicio ultra rápido de compilador en la nube con optimización automática por Inteligencia Artificial.</p>
+                </div>
+
+                <!-- Tarjetas de Precios -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-6 pt-6">
+                    <!-- Plan 1: Diario -->
+                    <div class="bg-glass-card p-6 rounded-3xl border border-white/5 flex flex-col justify-between space-y-6 relative overflow-hidden group">
+                        <div class="space-y-4">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Crédito Diario</h3>
+                                <p class="text-[9px] text-slate-500 mt-0.5">Acceso básico 24 horas</p>
+                            </div>
+                            <div class="py-2">
+                                <span class="text-2xl font-black text-white">$19</span>
+                                <span class="text-[10px] text-slate-400 font-mono">MXN / día</span>
+                            </div>
+                            <ul class="text-[11px] text-slate-400 space-y-2 border-t border-white/5 pt-4">
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-cyan-400 text-[10px]"></i> 3 Compilaciones / día</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-cyan-400 text-[10px]"></i> Cola estándar</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-cyan-400 text-[10px]"></i> APK de Android</li>
+                                <li class="flex items-center gap-1.5 text-slate-600"><i class="fa-solid fa-xmark text-rose-500 text-[10px]"></i> No iOS (.ipa)</li>
+                            </ul>
+                        </div>
+                        <button onclick="subscribePlanDemo('Crédito Diario', 19)" class="w-full py-2 rounded-xl bg-white/5 group-hover:bg-cyan-500 group-hover:text-black group-hover:shadow-lg group-hover:shadow-cyan-500/20 text-xs font-bold text-slate-200 transition-all border border-white/10 group-hover:border-transparent text-center">
+                            Adquirir
+                        </button>
+                    </div>
+
+                    <!-- Plan 2: Semanal -->
+                    <div class="bg-glass-card p-6 rounded-3xl border border-white/5 flex flex-col justify-between space-y-6 relative overflow-hidden group">
+                        <div class="space-y-4">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Semanal</h3>
+                                <p class="text-[9px] text-slate-500 mt-0.5">Proyectos pequeños rápidos</p>
+                            </div>
+                            <div class="py-2">
+                                <span class="text-2xl font-black text-white">$99</span>
+                                <span class="text-[10px] text-slate-400 font-mono">MXN / semana</span>
+                            </div>
+                            <ul class="text-[11px] text-slate-400 space-y-2 border-t border-white/5 pt-4">
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-cyan-400 text-[10px]"></i> 25 Compilaciones</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-cyan-400 text-[10px]"></i> Cola Prioritaria</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-cyan-400 text-[10px]"></i> Android (.APK)</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-cyan-400 text-[10px]"></i> iOS (.IPA)</li>
+                            </ul>
+                        </div>
+                        <button onclick="subscribePlanDemo('Semanal', 99)" class="w-full py-2 rounded-xl bg-white/5 group-hover:bg-cyan-500 group-hover:text-black group-hover:shadow-lg group-hover:shadow-cyan-500/20 text-xs font-bold text-slate-200 transition-all border border-white/10 group-hover:border-transparent text-center">
+                            Adquirir
+                        </button>
+                    </div>
+
+                    <!-- Plan 3: Mensual (POPULAR) -->
+                    <div class="bg-glass-card p-6 rounded-3xl border-purple-500/50 flex flex-col justify-between space-y-6 relative overflow-hidden group shadow-xl shadow-purple-500/5">
+                        <div class="absolute -top-3 -right-3 bg-purple-500 text-black font-extrabold text-[8px] uppercase tracking-widest px-4 py-1.5 rotate-45">POPULAR</div>
+                        <div class="space-y-4">
+                            <div>
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1.5">Mensual <span class="text-[9px] text-purple-400"><i class="fa-solid fa-star"></i></span></h3>
+                                <p class="text-[9px] text-slate-400 mt-0.5">La mejor opción para desarrolladores</p>
+                            </div>
+                            <div class="py-2">
+                                <span class="text-3xl font-black text-white">$299</span>
+                                <span class="text-[10px] text-slate-400 font-mono">MXN / mes</span>
+                            </div>
+                            <ul class="text-[11px] text-slate-300 space-y-2 border-t border-purple-500/20 pt-4">
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-purple-400 text-[10px]"></i> 100 Compilaciones</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-purple-400 text-[10px]"></i> Servidores Ultra-Rápidos</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-purple-400 text-[10px]"></i> Firmas Digitales Custom</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-purple-400 text-[10px]"></i> Soporte Email 24/7</li>
+                            </ul>
+                        </div>
+                        <button onclick="subscribePlanDemo('Mensual PRO', 299)" class="w-full py-2.5 rounded-xl gradient-btn text-white text-xs font-bold transition-all shadow-lg shadow-purple-500/25 text-center">
+                            ¡Suscribirse Ya!
+                        </button>
+                    </div>
+
+                    <!-- Plan 4: Semestral -->
+                    <div class="bg-glass-card p-6 rounded-3xl border border-white/5 flex flex-col justify-between space-y-6 relative overflow-hidden group">
+                        <div class="space-y-4">
+                            <div>
+                                <h3 class="text-sm font-bold text-slate-300 uppercase tracking-wider">Semestral</h3>
+                                <p class="text-[9px] text-slate-500 mt-0.5">Para agencias de software</p>
+                            </div>
+                            <div class="py-2">
+                                <span class="text-2xl font-black text-white">$1,499</span>
+                                <span class="text-[10px] text-slate-400 font-mono">MXN / 6 meses</span>
+                            </div>
+                            <ul class="text-[11px] text-slate-400 space-y-2 border-t border-white/5 pt-4">
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-cyan-400 text-[10px]"></i> 700 Compilaciones</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-cyan-400 text-[10px]"></i> Optimización IA Completa</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-cyan-400 text-[10px]"></i> API Rest de Acceso</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-cyan-400 text-[10px]"></i> Certificados Propios</li>
+                            </ul>
+                        </div>
+                        <button onclick="subscribePlanDemo('Semestral', 1499)" class="w-full py-2 rounded-xl bg-white/5 group-hover:bg-cyan-500 group-hover:text-black group-hover:shadow-lg group-hover:shadow-cyan-500/20 text-xs font-bold text-slate-200 transition-all border border-white/10 group-hover:border-transparent text-center">
+                            Adquirir
+                        </button>
+                    </div>
+
+                    <!-- Plan 5: Anual -->
+                    <div class="bg-glass-card p-6 rounded-3xl border border-pink-500/30 flex flex-col justify-between space-y-6 relative overflow-hidden group">
+                        <div class="absolute -top-3 -right-3 bg-pink-500 text-black font-extrabold text-[8px] uppercase tracking-widest px-4 py-1.5 rotate-45">MEJOR VALOR</div>
+                        <div class="space-y-4">
+                            <div>
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider">Anual</h3>
+                                <p class="text-[9px] text-slate-400 mt-0.5">Compilaciones sin límites</p>
+                            </div>
+                            <div class="py-2">
+                                <span class="text-2xl font-black text-white">$2,499</span>
+                                <span class="text-[10px] text-slate-400 font-mono">MXN / año</span>
+                            </div>
+                            <ul class="text-[11px] text-slate-400 space-y-2 border-t border-white/5 pt-4">
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-pink-500 text-[10px]"></i> Compilaciones ILIMITADAS</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-pink-500 text-[10px]"></i> Prioridad 1 en Servidores</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-pink-500 text-[10px]"></i> API de Alta Disponibilidad</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-pink-500 text-[10px]"></i> Asesoría de Publicación</li>
+                            </ul>
+                        </div>
+                        <button onclick="subscribePlanDemo('Anual Ilimitado', 2499)" class="w-full py-2 rounded-xl bg-pink-500/20 group-hover:bg-pink-500 group-hover:text-black group-hover:shadow-lg group-hover:shadow-pink-500/20 text-xs font-bold text-pink-300 transition-all border border-pink-500/30 group-hover:border-transparent text-center">
+                            Adquirir
+                        </button>
+                    </div>
+
+                    <!-- Plan 6: White Label -->
+                    <div class="bg-glass-card p-6 rounded-3xl border-cyan-500/50 flex flex-col justify-between space-y-6 relative overflow-hidden group">
+                        <div class="space-y-4">
+                            <div>
+                                <h3 class="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-1"><span class="gradient-text">White Label</span></h3>
+                                <p class="text-[9px] text-slate-400 mt-0.5">SaaS marca propia</p>
+                            </div>
+                            <div class="py-2">
+                                <span class="text-2xl font-black text-white">$9,999</span>
+                                <span class="text-[10px] text-slate-400 font-mono">MXN única</span>
+                            </div>
+                            <ul class="text-[11px] text-slate-300 space-y-2 border-t border-cyan-500/20 pt-4">
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-cyan-400 text-[10px]"></i> Marca Propia (Tu Logo)</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-cyan-400 text-[10px]"></i> Tu propio subdominio</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-cyan-400 text-[10px]"></i> API Acceso Completo</li>
+                                <li class="flex items-center gap-1.5"><i class="fa-solid fa-check text-cyan-400 text-[10px]"></i> Soporte Especial VIP 24h</li>
+                            </ul>
+                        </div>
+                        <button onclick="subscribePlanDemo('White Label', 9999)" class="w-full py-2.5 rounded-xl bg-gradient-to-r from-cyan-400 to-blue-500 hover:from-cyan-300 hover:to-blue-400 text-black text-xs font-black transition-all shadow-lg shadow-cyan-500/25 text-center">
+                            ¡Comprar SaaS!
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Preguntas Frecuentes / Garantías -->
+                <div class="bg-glass p-8 rounded-3xl border border-white/5 mt-12 grid grid-cols-1 md:grid-cols-2 gap-8">
+                    <div class="space-y-4">
+                        <h4 class="text-lg font-bold text-white"><i class="fa-solid fa-circle-question text-cyan-400 mr-2"></i> Preguntas sobre Facturación</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <h5 class="text-xs font-bold text-slate-200">¿Tienen contratos de permanencia?</h5>
+                                <p class="text-xs text-slate-400 mt-1">No, puedes cancelar tu suscripción mensual, semanal o anual en cualquier momento sin cargos adicionales desde la sección "Mi Cuenta".</p>
+                            </div>
+                            <div>
+                                <h5 class="text-xs font-bold text-slate-200">¿Cuáles son los métodos de pago aceptados?</h5>
+                                <p class="text-xs text-slate-400 mt-1">Aceptamos tarjetas de débito y crédito (Visa, Mastercard, Amex), MercadoPago, OXXO Pay y transferencias SPEI en pesos mexicanos.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <h4 class="text-lg font-bold text-white"><i class="fa-solid fa-shield-halved text-purple-400 mr-2"></i> Garantías de Reembolso</h4>
+                        <div class="space-y-3">
+                            <div>
+                                <h5 class="text-xs font-bold text-slate-200">Garantía de Satisfacción de 7 Días</h5>
+                                <p class="text-xs text-slate-400 mt-1">Si el compilador de AppForge Cloud no cumple con tus expectativas o tus archivos no compilan correctamente, te devolvemos el 100% de tu dinero de manera automática sin preguntas.</p>
+                            </div>
+                            <div class="p-3 bg-cyan-500/10 border border-cyan-500/20 rounded-xl flex items-center gap-3">
+                                <i class="fa-solid fa-lock text-cyan-400 text-lg"></i>
+                                <span class="text-xs text-slate-300 font-semibold">Todas las transacciones están encriptadas mediante cifrado SSL de 256 bits y procesadas a través de Stripe México.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ================= SECCIÓN 7: MANUAL DE USUARIO ================= -->
+            <section id="sec-user-manual" class="space-y-6 hidden">
+                <div>
+                    <h2 class="text-3xl font-black text-white tracking-tight flex items-center gap-2">
+                        <i class="fa-solid fa-book-open text-cyan-400"></i> Manual del <span class="gradient-text">Desarrollador</span>
+                    </h2>
+                    <p class="text-sm text-slate-400">Aprende a preparar tu proyecto para compilarlo en un abrir y cerrar de ojos con AppForge Cloud.</p>
+                </div>
+
+                <!-- Pasos Ilustrados de Compilación -->
+                <div class="grid grid-cols-1 md:grid-cols-5 gap-6">
+                    <div class="bg-glass-card p-6 rounded-2xl border border-white/5 space-y-3">
+                        <div class="w-10 h-10 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-md font-bold">1</div>
+                        <h4 class="text-xs font-bold text-white uppercase tracking-wider">Estructura Web</h4>
+                        <p class="text-xs text-slate-400">Tu proyecto debe incluir un archivo <span class="font-mono text-cyan-300">index.html</span> en el directorio raíz del archivo ZIP para funcionar.</p>
+                    </div>
+                    <div class="bg-glass-card p-6 rounded-2xl border border-white/5 space-y-3">
+                        <div class="w-10 h-10 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center text-md font-bold">2</div>
+                        <h4 class="text-xs font-bold text-white uppercase tracking-wider">Sube el Archivo</h4>
+                        <p class="text-xs text-slate-400">Usa la zona de arrastrar en la pestaña "Nueva Compilación" para cargar el archivo ZIP o el archivo único HTML.</p>
+                    </div>
+                    <div class="bg-glass-card p-6 rounded-2xl border border-white/5 space-y-3">
+                        <div class="w-10 h-10 rounded-lg bg-pink-500/10 text-pink-400 flex items-center justify-center text-md font-bold">3</div>
+                        <h4 class="text-xs font-bold text-white uppercase tracking-wider">Configura la App</h4>
+                        <p class="text-xs text-slate-400">Indica el nombre de la app, su versión, ID de paquete (Package ID) y los permisos nativos requeridos.</p>
+                    </div>
+                    <div class="bg-glass-card p-6 rounded-2xl border border-white/5 space-y-3">
+                        <div class="w-10 h-10 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center text-md font-bold">4</div>
+                        <h4 class="text-xs font-bold text-white uppercase tracking-wider">Compilación IA</h4>
+                        <p class="text-xs text-slate-400">Presiona el botón "Compilar" y deja que nuestro Agente inteligente complete dependencias de firma.</p>
+                    </div>
+                    <div class="bg-glass-card p-6 rounded-2xl border border-white/5 space-y-3">
+                        <div class="w-10 h-10 rounded-lg bg-green-500/10 text-green-400 flex items-center justify-center text-md font-bold">5</div>
+                        <h4 class="text-xs font-bold text-white uppercase tracking-wider">¡Descarga tu App!</h4>
+                        <p class="text-xs text-slate-400">Una vez finalizado el pipeline de empaquetado, descarga el APK para Android o el IPA para iOS directamente.</p>
+                    </div>
+                </div>
+
+                <!-- FAQ (Preguntas Frecuentes) -->
+                <div class="bg-glass p-8 rounded-3xl border border-white/5 space-y-6">
+                    <h3 class="text-lg font-bold text-white"><i class="fa-solid fa-clipboard-question text-purple-400 mr-2"></i> Preguntas Frecuentes</h3>
+                    
+                    <div class="space-y-4 divide-y divide-white/5">
+                        <div class="pt-4 first:pt-0 space-y-2">
+                            <h4 class="text-sm font-bold text-slate-200">¿Qué tipo de proyectos web puedo compilar?</h4>
+                            <p class="text-xs text-slate-400">Puedes compilar cualquier sitio o aplicación web estática estricta construida con HTML5, CSS3, ES2024, JavaScript plano, frameworks de frontend modernos (como React, Vue, Angular, Svelte siempre que compiles a build estático de carpeta dist/out) y Progressive Web Apps (PWAs).</p>
+                        </div>
+                        <div class="pt-4 space-y-2">
+                            <h4 class="text-sm font-bold text-slate-200">¿Cómo configuro un icono personalizado para mi app?</h4>
+                            <p class="text-xs text-slate-400">En la sección "Configuración Avanzada" de la pestaña de Nueva Compilación, puedes subir una imagen en formato .PNG cuadrada (recomendado 512x512 píxeles). Nuestro sistema lo redimensionará y lo adaptará automáticamente para todas las densidades de pantalla en Android e iOS.</p>
+                        </div>
+                        <div class="pt-4 space-y-2">
+                            <h4 class="text-sm font-bold text-slate-200">¿La APK compilada es apta para subirse a Google Play Store?</h4>
+                            <p class="text-xs text-slate-400">Sí. El compilador en la nube de AppForge Cloud firma digitalmente los binarios utilizando las llaves Keystore con algoritmo SHA-256 alineados con las regulaciones de seguridad modernas de Google Play Console y Apple Developer Portal.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Video / Recursos Placeholders -->
+                <div class="bg-glass p-6 rounded-3xl border border-white/5 space-y-4">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-widest"><i class="fa-regular fa-circle-play text-pink-400 mr-1.5"></i> Video Tutorial de Inicio Rápido</h3>
+                    <div class="aspect-video w-full rounded-2xl bg-black/60 border border-white/5 flex flex-col items-center justify-center text-center p-6 relative overflow-hidden group cursor-pointer" onclick="alert('Iniciando reproducción de video tutorial interactivo (Simulado)')">
+                        <!-- Background image simulation -->
+                        <div class="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&q=80&w=1200')] bg-cover bg-center opacity-25 group-hover:scale-105 transition-transform duration-700"></div>
+                        <div class="absolute inset-0 bg-slate-950/80"></div>
+                        
+                        <div class="relative z-10 w-16 h-16 rounded-full bg-cyan-500/10 border border-cyan-400 text-cyan-300 text-2xl flex items-center justify-center shadow-lg shadow-cyan-500/20 group-hover:bg-cyan-500 group-hover:text-black transition-all mb-4">
+                            <i class="fa-solid fa-play ml-1"></i>
+                        </div>
+                        <h4 class="relative z-10 text-sm font-bold text-white group-hover:text-cyan-400 transition-colors">Aprende a Compilar una PWA en menos de 3 minutos</h4>
+                        <p class="relative z-10 text-xs text-slate-400 mt-1">Videoguía interactiva explicada paso a paso por ingenieros de software senior.</p>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ================= SECCIÓN 8: HOJA TÉCNICA ================= -->
+            <section id="sec-tech-sheet" class="space-y-6 hidden">
+                <div>
+                    <h2 class="text-3xl font-black text-white tracking-tight flex items-center gap-2">
+                        <i class="fa-solid fa-gears text-cyan-400"></i> Hoja Técnica de <span class="gradient-text">Especificaciones</span>
+                    </h2>
+                    <p class="text-sm text-slate-400">Conoce los detalles de bajo nivel de nuestra infraestructura de compilación y capacidades técnicas integradas.</p>
+                </div>
+
+                <!-- Tabla de Especificaciones Técnicas -->
+                <div class="bg-glass rounded-3xl border border-white/5 overflow-hidden">
+                    <div class="p-6 border-b border-white/5 bg-slate-950/40">
+                        <h3 class="text-sm font-bold text-white uppercase tracking-widest"><i class="fa-solid fa-circle-info text-cyan-400 mr-2"></i> Características Técnicas del Compilador</h3>
+                    </div>
+                    
+                    <div class="divide-y divide-white/5 text-xs">
+                        <div class="grid grid-cols-1 md:grid-cols-3 p-4 hover:bg-white/5 transition-colors">
+                            <span class="font-bold text-slate-300 md:col-span-1">Tecnologías Híbridas de Frontend Soportadas</span>
+                            <span class="text-slate-400 md:col-span-2">HTML5 estándar, CSS3 avanzado, JavaScript ES2024 moderno, Progressive Web Apps (PWA), Capacitor Core, Apache Cordova, frameworks SPA (React, Vue, Angular, Svelte compilados a estático).</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 p-4 hover:bg-white/5 transition-colors">
+                            <span class="font-bold text-slate-300 md:col-span-1">Formatos de Entrada Admitidos</span>
+                            <span class="text-slate-400 md:col-span-2">Carpeta comprimida <span class="font-mono text-cyan-400">.ZIP</span> conteniendo index.html, o un archivo único <span class="font-mono text-cyan-400">.HTML</span> estático autocontenido.</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 p-4 hover:bg-white/5 transition-colors">
+                            <span class="font-bold text-slate-300 md:col-span-1">Formatos de Salida Generados</span>
+                            <span class="text-slate-400 md:col-span-2">Android Application Package (<span class="font-mono text-cyan-400">.APK</span>) compatible con Android 6.0 (API Level 23) en adelante, iOS Application Archive (<span class="font-mono text-cyan-400">.IPA</span>) compatible con iOS 14.0 en adelante.</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 p-4 hover:bg-white/5 transition-colors">
+                            <span class="font-bold text-slate-300 md:col-span-1">Motor de Análisis y Optimización IA</span>
+                            <span class="text-slate-400 md:col-span-2">Agentes inteligentes integrados basados en los LLMs avanzados <span class="text-purple-400 font-semibold">Claude 3.5 Sonnet</span> y <span class="text-purple-400 font-semibold">GPT-4o</span>, encargados de la reestructuración automática del DOM, corrección de dependencias rotas y resolución de vulnerabilidades.</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 p-4 hover:bg-white/5 transition-colors">
+                            <span class="font-bold text-slate-300 md:col-span-1">Infraestructura del Servidor</span>
+                            <span class="text-slate-400 md:col-span-2">Nodos de compilación escalables de baja latencia construidos sobre Node.js 20, Docker para entornos aislados (Sandbox) y clústeres optimizados de Kubernetes en AWS.</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 p-4 hover:bg-white/5 transition-colors">
+                            <span class="font-bold text-slate-300 md:col-span-1">Tiempo de Compilación Promedio</span>
+                            <span class="text-slate-400 md:col-span-2">Entre 2 a 8 minutos, dependiendo de la complejidad de los archivos de origen y de la cola del servidor seleccionada.</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 p-4 hover:bg-white/5 transition-colors">
+                            <span class="font-bold text-slate-300 md:col-span-1">Límite de Carga de Archivos</span>
+                            <span class="text-slate-400 md:col-span-2">500 Megabytes por archivo ZIP de origen.</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 p-4 hover:bg-white/5 transition-colors">
+                            <span class="font-bold text-slate-300 md:col-span-1">Integración API REST</span>
+                            <span class="text-slate-400 md:col-span-2">Endpoints disponibles para compilar programáticamente a través de tokens Bearer asignados en los planes Semestrales y de Marca Blanca.</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-3 p-4 hover:bg-white/5 transition-colors">
+                            <span class="font-bold text-slate-300 md:col-span-1">Acuerdo de Nivel de Servicio (SLA)</span>
+                            <span class="text-slate-400 md:col-span-2">Uptime del 99.5% garantizado con monitoreo activo de nodos de infraestructura en tiempo real.</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Bloques con iconos destacados -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 pt-4">
+                    <div class="bg-glass p-6 rounded-2xl border border-white/5 flex gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-shield-virus"></i></div>
+                        <div>
+                            <h4 class="text-xs font-bold text-white uppercase tracking-wider">SANDBOX AISLADO</h4>
+                            <p class="text-xs text-slate-400 mt-1">Cada compilación se realiza en un contenedor Docker único, destruido de inmediato al empaquetar para proteger tu código.</p>
+                        </div>
+                    </div>
+                    <div class="bg-glass p-6 rounded-2xl border border-white/5 flex gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-key"></i></div>
+                        <div>
+                            <h4 class="text-xs font-bold text-white uppercase tracking-wider">CERTIFICADOS SSL Y KEYSTORES</h4>
+                            <p class="text-xs text-slate-400 mt-1">El servidor almacena tus llaves de firma (Keystores) con cifrado AES-256 de grado militar para la exportación de las apps.</p>
+                        </div>
+                    </div>
+                    <div class="bg-glass p-6 rounded-2xl border border-white/5 flex gap-4">
+                        <div class="w-10 h-10 rounded-lg bg-pink-500/10 text-pink-400 flex items-center justify-center text-lg shrink-0"><i class="fa-solid fa-code"></i></div>
+                        <div>
+                            <h4 class="text-xs font-bold text-white uppercase tracking-wider">SOPORTE ES2024 COMPLETO</h4>
+                            <p class="text-xs text-slate-400 mt-1">Compilamos scripts utilizando transpiladores internos de Babel para asegurar la máxima compatibilidad nativa.</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+
+            <!-- ================= SECCIÓN 9: MI CUENTA / SUSCRIPCIÓN ================= -->
+            <section id="sec-my-account" class="space-y-6 hidden">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div>
+                        <h2 class="text-3xl font-black text-white tracking-tight flex items-center gap-2">
+                            <i class="fa-solid fa-user-gear text-cyan-400"></i> Mi Cuenta y <span class="gradient-text">Configuración</span>
+                        </h2>
+                        <p class="text-sm text-slate-400">Gestiona los detalles de tu perfil, suscripción activa, tokens de API y llaves Keystore privadas.</p>
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- Perfil y Cuenta -->
+                    <div class="lg:col-span-2 space-y-6">
+                        <!-- Perfil Form -->
+                        <div class="bg-glass p-8 rounded-3xl border border-white/5 space-y-6">
+                            <h3 class="text-sm font-bold text-white uppercase tracking-widest"><i class="fa-regular fa-id-card text-cyan-400 mr-2"></i> Datos de Perfil</h3>
+                            
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Nombre Completo</label>
+                                    <input type="text" class="bg-slate-950/40 border border-white/5 focus:border-cyan-500/50 text-white text-sm rounded-xl p-3 w-full focus:outline-none" value="Sofía Rodríguez">
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Correo Electrónico</label>
+                                    <input type="email" class="bg-slate-950/40 border border-white/5 focus:border-cyan-500/50 text-white text-sm rounded-xl p-3 w-full focus:outline-none" value="sofia.rodriguez@empresa.com">
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Número Telefónico</label>
+                                    <input type="text" class="bg-slate-950/40 border border-white/5 focus:border-cyan-500/50 text-white text-sm rounded-xl p-3 w-full focus:outline-none" value="+52 55 1234 5678">
+                                </div>
+                                <div class="space-y-2">
+                                    <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">País / Región</label>
+                                    <input type="text" class="bg-slate-950/40 border border-white/5 focus:border-cyan-500/50 text-white text-sm rounded-xl p-3 w-full focus:outline-none" value="México">
+                                </div>
+                            </div>
+                            <button onclick="saveProfileDemo()" class="gradient-btn text-white text-xs px-5 py-3 rounded-xl font-bold transition-all shadow-md">
+                                Guardar Perfil
+                            </button>
+                        </div>
+
+                        <!-- Configuración de Llaves de Firma (Keystores) -->
+                        <div class="bg-glass p-8 rounded-3xl border border-white/5 space-y-4">
+                            <h3 class="text-sm font-bold text-white uppercase tracking-widest"><i class="fa-solid fa-key text-purple-400 mr-2"></i> Mis Credenciales de Firma (Keystores)</h3>
+                            <p class="text-xs text-slate-400">Si deseas utilizar tus propias llaves oficiales para compilar, puedes cargarlas de manera segura.</p>
+                            
+                            <div class="border border-white/5 rounded-2xl p-4 bg-slate-900/30 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-10 h-10 rounded-xl bg-purple-500/10 text-purple-400 flex items-center justify-center text-lg"><i class="fa-solid fa-certificate"></i></div>
+                                    <div>
+                                        <p class="text-xs font-bold text-white">llave-oficial-playstore.keystore</p>
+                                        <p class="text-[10px] text-slate-500 font-mono">Cifrado: SHA-256 | Expira: 2051</p>
+                                    </div>
+                                </div>
+                                <span class="text-[10px] bg-green-500/10 text-green-400 border border-green-500/30 px-2 py-1 rounded font-bold uppercase self-start sm:self-auto">EN USO</span>
+                            </div>
+
+                            <button onclick="alert('Esta función te permite subir un Keystore personalizado. Disponible en la versión de producción.')" class="bg-white/5 hover:bg-white/10 text-slate-300 border border-white/10 text-xs px-4 py-2 rounded-xl transition-all font-semibold">
+                                Subir Nuevo Keystore (.keystore / .jks)
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Panel de Plan Activo y Detalles de Facturación -->
+                    <div class="space-y-6">
+                        <div class="bg-glass p-6 rounded-3xl border border-purple-500/30 space-y-6 relative overflow-hidden">
+                            <div class="absolute -right-12 -top-12 w-32 h-32 bg-purple-500/10 rounded-full filter blur-xl"></div>
+                            
+                            <h3 class="text-sm font-bold text-white uppercase tracking-wider">Mi Suscripción</h3>
+                            
+                            <div class="space-y-4">
+                                <div class="p-3 bg-purple-500/10 border border-purple-500/30 rounded-2xl flex items-center gap-3">
+                                    <div class="text-purple-400 text-xl"><i class="fa-solid fa-star"></i></div>
+                                    <div>
+                                        <p class="text-xs font-black text-white">PLAN MENSUAL PRO</p>
+                                        <p class="text-[10px] text-purple-300 font-bold">$299 MXN / mes</p>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2">
+                                    <div class="flex justify-between text-xs">
+                                        <span class="text-slate-400">Compilaciones este mes</span>
+                                        <span class="text-white font-mono font-semibold">12 / 100</span>
+                                    </div>
+                                    <div class="w-full bg-slate-900 h-2 rounded-full overflow-hidden border border-white/5">
+                                        <div class="bg-gradient-to-r from-purple-500 to-cyan-500 h-full" style="width: 12%"></div>
+                                    </div>
+                                </div>
+
+                                <div class="space-y-2 text-xs font-mono pt-4 border-t border-white/5">
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-400">Fecha de renovación:</span>
+                                        <span class="text-white">05 Ago 2026</span>
+                                    </div>
+                                    <div class="flex justify-between">
+                                        <span class="text-slate-400">Método de pago:</span>
+                                        <span class="text-white">Visa termina en 4821</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button onclick="showSection('pricing')" class="w-full py-2.5 rounded-xl bg-purple-500 hover:bg-purple-600 text-white text-xs font-bold transition-all shadow-lg shadow-purple-500/20 text-center">
+                                Cambiar de Plan
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+        </div>
+    </main>
+
+    <!-- MODAL PARA INVITAR AMIGOS (REFERIDOS DE REFERENCIA) -->
+    <div id="invite-friend-modal" class="fixed inset-0 bg-black/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <div class="bg-glass border border-white/10 rounded-3xl max-w-lg w-full p-8 space-y-6 relative overflow-hidden">
+            <div class="absolute -right-16 -top-16 w-36 h-36 bg-pink-500/10 rounded-full filter blur-xl"></div>
+            
+            <button onclick="closeInviteFriendModal()" class="absolute top-4 right-4 text-slate-400 hover:text-white transition-colors text-lg">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+
+            <div class="text-center space-y-2">
+                <div class="w-16 h-16 rounded-2xl bg-pink-500/10 text-pink-400 border border-pink-500/20 flex items-center justify-center text-3xl mx-auto mb-4 animate-float">
+                    <i class="fa-solid fa-gift"></i>
+                </div>
+                <h3 class="text-2xl font-black text-white">¡Gana Créditos Gratuitos!</h3>
+                <p class="text-xs text-slate-400">Invita a tus colegas desarrolladores a usar AppForge Cloud. Recibirás 10 créditos de compilación prioritarios gratis cuando se registren y un 25% de comisión cuando se suscriban.</p>
+            </div>
+
+            <!-- Código e invitaciones -->
+            <div class="space-y-4">
+                <div class="space-y-2">
+                    <label class="text-[10px] text-slate-400 uppercase tracking-widest font-bold block">Tu Enlace Personal de Referido</label>
+                    <div class="bg-slate-950/40 border border-white/5 rounded-xl px-4 py-3 flex items-center justify-between gap-3">
+                        <span class="text-xs text-cyan-400 font-mono select-all truncate" id="referral-link">https://appforge.cloud/ref/sofia_rod_mx26</span>
+                        <button onclick="copyReferralLink()" class="bg-white/5 hover:bg-cyan-500 hover:text-black text-[10px] font-bold text-white px-3 py-1.5 rounded-lg transition-all border border-white/10">
+                            <i class="fa-solid fa-copy mr-1"></i> Copiar Link
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- SCRIPT DE JAVASCRIPT: LÓGICA DE INTERACTIVIDAD COMPLETA -->
+    <script>
+        // --- ESTADO GENERAL DE LA APLICACIÓN ---
+        let currentPlatform = 'android';
+        let selectedFile = null;
+        let logsInterval = null;
+        let secondsElapsed = 0;
+        let timerInterval = null;
+
+        // Lista de Logs de Simulación para cada Etapa del Pipeline
+        const logsDatabase = {
+            step1: [
+                "[00:01] [INFRAESTRUCTURA] Contenedor Docker instanciado en Nodo Latam-1 exitosamente.",
+                "[00:03] [ARCHIVO] Archivo origen subido 'proyecto_final.zip' detectado.",
+                "[00:04] [ARCHIVO] Descomprimiendo archivos en entorno temporal aislado...",
+                "[00:06] [SISTEMA] Estructura encontrada: index.html (raíz), assets/, css/, js/.",
+                "[00:08] [ANALIZADOR] Verificando compatibilidad de sintaxis HTML5...",
+                "[00:09] [ANALIZADOR] index.html validado correctamente. 12 llamadas DOM encontradas."
+            ],
+            step2: [
+                "[00:11] [DEPENDENCIAS] Escaneando archivo index.html en busca de dependencias CDN...",
+                "[00:13] [DEPENDENCIAS] CDN de Tailwind CSS detectado. Inyectando caché local.",
+                "[00:15] [DEPENDENCIAS] CDN de FontAwesome detectado. Mapeando recursos de íconos.",
+                "[00:17] [COMPILADOR] Creando plantillas de puente nativas para Capacitor v5.0.0...",
+                "[00:19] [RECURSOS] Iconos y pantallas de carga asignados. Copiando Assets de Android/iOS."
+            ],
+            step3: [
+                "[00:22] [AGENTE-IA] Analizando código JS en busca de llamadas con errores CORS...",
+                "[00:24] [AGENTE-IA] 2 llamadas fetch() detectadas en app.js.",
+                "[00:26] [AGENTE-IA] [AJUSTE] Reemplazando URLs absolutas por llamadas relativas seguras.",
+                "[00:28] [AGENTE-IA] Optimizando estilos CSS inútiles. Peso final del CSS reducido en un 34%.",
+                "[00:30] [AGENTE-IA] [SUGERENCIA] Agregado polyfill de compatibilidad para navegadores viejos."
+            ],
+            step4: [
+                "[00:33] [VERIFICACIÓN] Iniciando validación interna de políticas de Play Store y App Store...",
+                "[00:35] [VERIFICACIÓN] Todos los permisos declarados se encuentran dentro del rango permitido.",
+                "[00:37] [FIRMA] Iniciando proceso de firma digital...",
+                "[00:39] [FIRMA] Generando firma digital Keystore predeterminada de AppForge.",
+                "[00:41] [FIRMA] Firma aplicada correctamente: SHA-256 Huella digital: 8F:92:B4:7C:1A..."
+            ],
+            step5: [
+                "[00:44] [EMPAQUETADOR] Ejecutando comando de compilación: gradle assembleRelease...",
+                "[00:47] [EMPAQUETADOR] Gradle ejecutado con éxito. Creando archivo APK.",
+                "[00:50] [SISTEMA] Binario de salida generado con éxito: AppForge_Build_AF-842.apk",
+                "[00:53] [ALMACENAMIENTO] Subiendo archivo final a servidor de descargas seguras...",
+                "[00:55] [SISTEMA] ¡PROCESO DE COMPILACIÓN COMPLETADO EXITOSAMENTE! 🎉"
+            ]
+        };
+
+        // NOTIFICACIONES INICIALES AL CARGAR LA APP
+        window.addEventListener('DOMContentLoaded', () => {
+            showToast('¡Bienvenido a AppForge Cloud!', 'Tu panel de control de compilación está listo.', 'info');
+            
+            // Simular notificación push entrante a los 6 segundos
+            setTimeout(() => {
+                showToast('Servidores Optimistas', 'Nodos optimizados para compilaciones rápidas (2-3 mins).', 'success');
+            }, 6000);
+        });
+
+        // --- SISTEMA DE NOTIFICACIONES TOAST ---
+        function showToast(title, text, type = 'success') {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            
+            let icon = 'fa-circle-check text-green-400';
+            if (type === 'error') icon = 'fa-triangle-exclamation text-rose-500';
+            if (type === 'info') icon = 'fa-circle-info text-cyan-400';
+
+            toast.className = `notification-toast bg-glass border border-white/10 p-4 rounded-2xl shadow-2xl flex gap-3 items-start w-full relative overflow-hidden`;
+            toast.innerHTML = `
+                <div class="absolute inset-0 bg-gradient-to-r from-cyan-500/5 to-transparent pointer-events-none"></div>
+                <div class="${icon} text-lg mt-0.5"><i class="fa-solid ${icon.split(' ')[0]}"></i></div>
+                <div class="flex-1">
+                    <h5 class="text-xs font-bold text-white">${title}</h5>
+                    <p class="text-[10px] text-slate-300 mt-0.5 leading-relaxed">${text}</p>
+                </div>
+                <button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-white transition-colors text-xs"><i class="fa-solid fa-xmark"></i></button>
+            `;
+
+            container.appendChild(toast);
+            
+            // Desaparecer después de 6 segundos
+            setTimeout(() => {
+                toast.style.animation = 'slideInRight 0.3s ease-out reverse forwards';
+                setTimeout(() => toast.remove(), 300);
+            }, 6000);
+        }
+
+        // --- MANEJO DE SECCIONES (NAVEGACIÓN) ---
+        function showSection(sectionId, element = null) {
+            // Ocultar todas las secciones
+            const sections = ['dashboard', 'new-build', 'pipeline', 'my-projects', 'build-history', 'pricing', 'user-manual', 'tech-sheet', 'my-account'];
+            sections.forEach(sec => {
+                document.getElementById(`sec-${sec}`).classList.add('hidden');
+            });
+
+            // Mostrar la sección seleccionada
+            document.getElementById(`sec-${sectionId}`).classList.remove('hidden');
+
+            // Actualizar estado de links en sidebar
+            if (element) {
+                document.querySelectorAll('.sidebar-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                element.classList.add('active');
+            } else {
+                // Si se activa desde un botón interno, sincronizar sidebar
+                document.querySelectorAll('.sidebar-link').forEach(link => {
+                    link.classList.remove('active');
+                    const onclickStr = link.getAttribute('onclick');
+                    if (onclickStr && onclickStr.includes(`'${sectionId}'`)) {
+                        link.classList.add('active');
+                    }
+                });
+            }
+
+            // Ocultar sidebar en móviles tras navegar
+            document.getElementById('sidebar').classList.add('-translate-x-full');
+            document.getElementById('sidebar-overlay').classList.add('hidden');
+        }
+
+        // --- TOGGLE SIDEBAR MOBILE ---
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            if (sidebar.classList.contains('-translate-x-full')) {
+                sidebar.classList.remove('-translate-x-full');
+                overlay.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                overlay.classList.add('hidden');
+            }
+        }
+
+        // --- DROPDOWN NOTIFICACIONES ---
+        function toggleNotificationDropdown() {
+            const dropdown = document.getElementById('notification-dropdown');
+            dropdown.classList.toggle('hidden');
+        }
+
+        function clearNotifications() {
+            document.getElementById('notification-list').innerHTML = `
+                <div class="text-center py-6 text-slate-500 text-xs">
+                    <i class="fa-solid fa-bell-slash text-2xl block mb-2 opacity-50"></i>
+                    No tienes notificaciones nuevas
+                </div>
+            `;
+            showToast('Notificaciones Borradas', 'Has marcado todas tus notificaciones como leídas.', 'info');
+        }
+
+        // --- MODAL DE INVITACIÓN / REFERIDOS ---
+        function openInviteFriendModal() {
+            document.getElementById('invite-friend-modal').classList.remove('hidden');
+        }
+
+        function closeInviteFriendModal() {
+            document.getElementById('invite-friend-modal').classList.add('hidden');
+        }
+
+        function copyReferralLink() {
+            const link = document.getElementById('referral-link').innerText;
+            navigator.clipboard.writeText(link);
+            showToast('¡Enlace Copiado!', 'El enlace de referidos se copió a tu portapapeles con éxito.', 'success');
+        }
+
+        // --- SECCIÓN: NUEVA COMPILACIÓN (LÓGICA) ---
+        function goToNewBuild() {
+            showSection('new-build');
+        }
+
+        // Cambio de Plataforma
+        function setPlatform(platform) {
+            currentPlatform = platform;
+            document.querySelectorAll('.platform-btn').forEach(btn => btn.classList.remove('active'));
+            
+            let labelText = 'Android (APK)';
+            if (platform === 'android') {
+                document.getElementById('plat-android').classList.add('active');
+                labelText = 'Android (APK)';
+            } else if (platform === 'ios') {
+                document.getElementById('plat-ios').classList.add('active');
+                labelText = 'iOS (IPA)';
+            } else {
+                document.getElementById('plat-both').classList.add('active');
+                labelText = 'Ambas (APK + IPA)';
+            }
+
+            document.getElementById('summary-platform').innerText = labelText;
+        }
+
+        // Rellenar Formulario Demo
+        function fillFormMock() {
+            document.getElementById('app-name').value = 'Forge Messenger';
+            document.getElementById('app-version').value = '1.0.0';
+            document.getElementById('app-package').value = 'com.appforge.messenger';
+            
+            document.getElementById('summary-name').innerText = 'Forge Messenger';
+            document.getElementById('summary-package').innerText = 'com.appforge.messenger';
+            
+            // Simular carga de archivo
+            selectedFile = { name: 'messenger_web_project.zip', size: '12.8 MB' };
+            document.getElementById('summary-file').innerText = 'messenger_web_project.zip';
+            
+            const selectedStatus = document.getElementById('file-selected-status');
+            selectedStatus.classList.remove('hidden');
+            selectedStatus.classList.add('flex');
+            document.getElementById('selected-file-name').innerText = 'messenger_web_project.zip';
+            document.getElementById('selected-file-size').innerText = '12.8 MB';
+
+            showToast('Datos Cargados', 'Formulario rellenado con datos de demostración.', 'info');
+        }
+
+        // Resetear Selector de Archivos
+        function resetFileSelector() {
+            selectedFile = null;
+            document.getElementById('summary-file').innerText = 'Ninguno';
+            const selectedStatus = document.getElementById('file-selected-status');
+            selectedStatus.classList.add('hidden');
+            selectedStatus.classList.remove('flex');
+            document.getElementById('file-input').value = '';
+        }
+
+        // Manejo de Dropzone Drag & Drop
+        const dropzone = document.getElementById('dropzone');
+        const fileInput = document.getElementById('file-input');
+
+        dropzone.addEventListener('click', () => fileInput.click());
+
+        dropzone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropzone.classList.add('border-cyan-400');
+        });
+
+        dropzone.addEventListener('dragleave', () => {
+            dropzone.classList.remove('border-cyan-400');
+        });
+
+        dropzone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropzone.classList.remove('border-cyan-400');
+            const files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFileSelection(files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFileSelection(e.target.files[0]);
+            }
+        });
+
+        function handleFileSelection(file) {
+            selectedFile = file;
+            const sizeInMB = (file.size / (1024 * 1024)).toFixed(1);
+            
+            document.getElementById('summary-file').innerText = file.name;
+            
+            const selectedStatus = document.getElementById('file-selected-status');
+            selectedStatus.classList.remove('hidden');
+            selectedStatus.classList.add('flex');
+            document.getElementById('selected-file-name').innerText = file.name;
+            document.getElementById('selected-file-size').innerText = `${sizeInMB} MB`;
+
+            showToast('Archivo Preparado', 'Archivo de origen asignado al empaquetador.', 'success');
+        }
+
+        // Configuración Avanzada Plegable
+        function toggleAdvancedSettings() {
+            const content = document.getElementById('advanced-settings-content');
+            const chevron = document.getElementById('advanced-chevron');
+            content.classList.toggle('hidden');
+            chevron.classList.toggle('rotate-180');
+        }
+
+        // Sincronizar inputs al escribir
+        document.getElementById('app-name').addEventListener('input', (e) => {
+            document.getElementById('summary-name').innerText = e.target.value || '-';
+        });
+
+        document.getElementById('app-package').addEventListener('input', (e) => {
+            document.getElementById('summary-package').innerText = e.target.value || '-';
+        });
+
+        // --- PROYECTO COMPILACIÓN RÁPIDA ---
+        function quickBuildProject(name, packageId) {
+            document.getElementById('app-name').value = name;
+            document.getElementById('app-package').value = packageId;
+            document.getElementById('app-version').value = '1.0.0';
+            
+            document.getElementById('summary-name').innerText = name;
+            document.getElementById('summary-package').innerText = packageId;
+            document.getElementById('summary-file').innerText = 'codigo_fuente_proyecto.zip';
+
+            showSection('new-build');
+            showToast('Proyecto Cargado', 'Configuración importada con éxito.', 'success');
+        }
+
+
+        // --- LÓGICA DE COMPILACIÓN / PIPELINE DE PROGRESO ---
+        function startBuildProcess() {
+            const appName = document.getElementById('app-name').value;
+            const appPackage = document.getElementById('app-package').value;
+
+            if (!selectedFile) {
+                showToast('Falta Archivo de Origen', 'Por favor sube un archivo ZIP o HTML para compilar tu aplicación.', 'error');
+                return;
+            }
+
+            if (!appName) {
+                showToast('Falta Nombre de la App', 'Por favor ingresa un nombre para tu aplicación.', 'error');
+                return;
+            }
+
+            if (!appPackage) {
+                showToast('Falta Identificador', 'Por favor ingresa un identificador de paquete válido.', 'error');
+                return;
+            }
+
+            // Preparar UI del Pipeline
+            document.getElementById('pipeline-title-app').innerText = `Compilando: ${appName}`;
+            
+            let platformLabel = 'Android APK';
+            if (currentPlatform === 'ios') platformLabel = 'iOS IPA';
+            if (currentPlatform === 'both') platformLabel = 'Android APK + iOS IPA';
+            document.getElementById('pipeline-platform-name').innerText = platformLabel;
+
+            // Resetear etapas visuales
+            for (let i = 1; i <= 5; i++) {
+                const step = document.getElementById(`step-${i}`);
+                step.className = "pipeline-step p-4 rounded-2xl border border-white/5 flex items-start sm:items-center gap-4 bg-slate-950/20";
+                step.querySelector('.step-icon').className = "step-icon w-10 h-10 rounded-xl bg-slate-800 text-slate-400 flex items-center justify-center text-md font-bold transition-all";
+                step.querySelector('.step-badge').className = "step-badge text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider bg-white/5 px-2 py-1 rounded";
+                step.querySelector('.step-badge').innerText = "En espera";
+            }
+
+            // Ocultar botones de acción de descarga
+            document.getElementById('pipeline-completed-actions').classList.add('hidden');
+
+            // Limpiar logs
+            const consoleLogs = document.getElementById('pipeline-terminal-logs');
+            consoleLogs.innerHTML = `
+                <p class="text-slate-500">[INFO] Iniciando Pipeline de Compilación AppForge Cloud...</p>
+                <p class="text-slate-500">[INFO] Cargando entorno de sandbox seguro...</p>
+            `;
+
+            // Mostrar Sección Pipeline
+            showSection('pipeline');
+
+            // Iniciar Temporizador
+            secondsElapsed = 0;
+            document.getElementById('pipeline-timer').innerText = "00:00";
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                const mins = String(Math.floor(secondsElapsed / 60)).padStart(2, '0');
+                const secs = String(secondsElapsed % 60).padStart(2, '0');
+                document.getElementById('pipeline-timer').innerText = `${mins}:${secs}`;
+            }, 1000);
+
+            // Iniciar Flujo de Pasos por Etapas
+            runStepStage(1);
+        }
+
+        // Ejecutar Etapa de Pipeline
+        function runStepStage(stepNumber) {
+            if (stepNumber > 5) {
+                // Finalizar Compilación
+                clearInterval(timerInterval);
+                showToast('¡Compilación Exitosa!', 'Tu binario firmado está listo para descargar.', 'success');
+                document.getElementById('pipeline-completed-actions').classList.remove('hidden');
+                
+                // Actualizar historial simulado (agregar una fila)
+                return;
+            }
+
+            const stepEl = document.getElementById(`step-${stepNumber}`);
+            
+            // Poner activo
+            stepEl.className = "pipeline-step p-4 rounded-2xl border border-cyan-500/30 flex items-start sm:items-center gap-4 bg-cyan-950/10 active";
+            stepEl.querySelector('.step-icon').className = "step-icon w-10 h-10 rounded-xl bg-cyan-500 text-black flex items-center justify-center text-md font-bold transition-all";
+            stepEl.querySelector('.step-badge').className = "step-badge text-[10px] font-mono text-cyan-400 font-bold uppercase tracking-wider bg-cyan-500/10 px-2 py-1 rounded";
+            stepEl.querySelector('.step-badge').innerText = "Procesando...";
+
+            // Simular logs en streaming para este paso
+            const stepLogs = logsDatabase[`step${stepNumber}`];
+            let logIndex = 0;
+            const logsContainer = document.getElementById('pipeline-terminal-logs');
+
+            const logsTimer = setInterval(() => {
+                if (logIndex < stepLogs.length) {
+                    const logParagraph = document.createElement('p');
+                    logParagraph.innerText = stepLogs[logIndex];
+                    logsContainer.appendChild(logParagraph);
+                    logsContainer.scrollTop = logsContainer.scrollHeight;
+                    logIndex++;
+                } else {
+                    clearInterval(logsTimer);
+                    // Completar el paso
+                    stepEl.className = "pipeline-step p-4 rounded-2xl border-emerald-500/30 flex items-start sm:items-center gap-4 bg-emerald-950/10 completed";
+                    stepEl.querySelector('.step-icon').className = "step-icon w-10 h-10 rounded-xl bg-emerald-500 text-black flex items-center justify-center text-md font-bold transition-all";
+                    stepEl.querySelector('.step-badge').className = "step-badge text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider bg-emerald-500/10 px-2 py-1 rounded";
+                    stepEl.querySelector('.step-badge').innerText = "Completado";
+
+                    // Pasar al siguiente paso con un pequeño retraso
+                    setTimeout(() => {
+                        runStepStage(stepNumber + 1);
+                    }, 1500);
+                }
+            }, 1000);
+        }
+
+        // Simular Descarga de Aplicación Compilada
+        function downloadBuildDemo(buildId) {
+            showToast('Iniciando Descarga', `Se está preparando la descarga del binario #${buildId}.`, 'success');
+            setTimeout(() => {
+                alert(`[DEMO] Descarga iniciada con éxito.\nArchivo: AppForge_Build_${buildId}.apk\nTamaño: 24.5 MB\nServidor: Latam-Cloud-Download-1`);
+            }, 1000);
+        }
+
+        // --- COMPRAR / ADQUIRIR PLAN ---
+        function subscribePlanDemo(planName, price) {
+            const confirmed = confirm(`¿Deseas iniciar tu suscripción al "${planName}" por $${price} MXN?\n\nEste es un entorno de demostración interactiva premium.`);
+            if (confirmed) {
+                showToast('Suscripción Simulada', `Te has suscrito al ${planName}. ¡Gracias por usar la demo!`, 'success');
+            }
+        }
+
+        // --- SALVAR PERFIL DEMO ---
+        function saveProfileDemo() {
+            showToast('Perfil Actualizado', 'Los cambios en tu perfil se guardaron de manera simulada.', 'success');
+        }
+
+        // --- LOGOUT DEMO ---
+        function toggleLogoutDemo() {
+            const logout = confirm('¿Deseas cerrar sesión en AppForge Cloud?');
+            if (logout) {
+                alert('Sesión cerrada. (Simulado)');
+            }
+        }
+    
+        // ══════════════════════════════════════════════════════
+        // APPFORGE CLOUD - BACKEND REAL v1.0
+        // Conectado a pipeline de IA con Claude 3.5 Sonnet
+        // ══════════════════════════════════════════════════════
+
+        // Config - auto-detecta si hay backend local o usa mock
+        const BACKEND_URL = (window.location.hostname === 'localhost' || window.location.hostname === '127.0.0.1')
+            ? `http://localhost:3002`
+            : window.location.origin;
+
+        // MODO TRIAL COMPLETO - activo por 48h
+        const TRIAL_MODE = true;
+        const TRIAL_EXPIRY = new Date(Date.now() + 48 * 60 * 60 * 1000);
+        let currentSessionId = null;
+        let sseSource = null;
+
+        // Reemplazar función startBuildProcess con versión real
+        async function startBuildProcess() {
+            const appName    = document.getElementById('app-name')?.value?.trim();
+            const appPackage = document.getElementById('app-package')?.value?.trim();
+            const appVersion = document.getElementById('app-version')?.value?.trim() || '1.0.0';
+
+            if (!selectedFile) {
+                showToast('Falta Archivo', 'Sube un archivo ZIP o HTML primero.', 'error'); return;
+            }
+            if (!appName) {
+                showToast('Falta Nombre', 'Ingresa el nombre de tu aplicación.', 'error'); return;
+            }
+            if (!appPackage) {
+                showToast('Falta Identificador', 'Ingresa el identificador de paquete (com.empresa.app).', 'error'); return;
+            }
+
+            // Preparar UI
+            document.getElementById('pipeline-title-app').innerText = `Compilando: ${appName}`;
+            let platformLabel = currentPlatform === 'android' ? 'Android APK' : currentPlatform === 'ios' ? 'iOS IPA' : 'Android APK + iOS IPA';
+            document.getElementById('pipeline-platform-name').innerText = platformLabel;
+
+            // Reset visual pipeline
+            for (let i = 1; i <= 5; i++) {
+                const step = document.getElementById(`step-${i}`);
+                if (!step) continue;
+                step.className = "pipeline-step p-4 rounded-2xl border border-white/5 flex items-start sm:items-center gap-4 bg-slate-950/20";
+                const icon = step.querySelector('.step-icon');
+                if (icon) icon.className = "step-icon w-10 h-10 rounded-xl bg-slate-800 text-slate-400 flex items-center justify-center text-md font-bold transition-all";
+                const badge = step.querySelector('.step-badge');
+                if (badge) { badge.className = "step-badge text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider bg-white/5 px-2 py-1 rounded"; badge.innerText = "En espera"; }
+            }
+            document.getElementById('pipeline-completed-actions')?.classList.add('hidden');
+
+            const consoleLogs = document.getElementById('pipeline-terminal-logs');
+            if (consoleLogs) consoleLogs.innerHTML = `<p class="text-slate-500">[INFO] Conectando con servidores AppForge Cloud...</p>`;
+
+            showSection('pipeline');
+
+            // Timer
+            secondsElapsed = 0;
+            document.getElementById('pipeline-timer').innerText = "00:00";
+            if (timerInterval) clearInterval(timerInterval);
+            timerInterval = setInterval(() => {
+                secondsElapsed++;
+                const m = String(Math.floor(secondsElapsed/60)).padStart(2,'0');
+                const s = String(secondsElapsed%60).padStart(2,'0');
+                document.getElementById('pipeline-timer').innerText = `${m}:${s}`;
+            }, 1000);
+
+            // Verificar si hay backend real
+            let backendAvailable = false;
+            try {
+                const health = await fetch(`${BACKEND_URL}/api/health`, { signal: AbortSignal.timeout(3000) });
+                const data = await health.json();
+                backendAvailable = data.status === 'ok';
+            } catch(e) { backendAvailable = false; }
+
+            if (backendAvailable) {
+                // ── MODO REAL: Usar backend con IA ──
+                appendLog('[OK]   Servidor AppForge Cloud conectado. Pipeline IA activado.', 'green');
+
+                const formData = new FormData();
+                formData.append('file', selectedFile instanceof File ? selectedFile : new File([selectedFile.name], selectedFile.name));
+                formData.append('appName', appName);
+                formData.append('appPackage', appPackage);
+                formData.append('appVersion', appVersion);
+                formData.append('platform', currentPlatform);
+
+                // Si es un File real, usarlo directamente
+                if (selectedFile instanceof File) {
+                    formData.set('file', selectedFile);
+                }
+
+                const response = await fetch(`${BACKEND_URL}/api/build`, { method: 'POST', body: formData });
+                const result = await response.json();
+
+                if (!response.ok) { appendLog(`[ERROR] ${result.error}`, 'red'); clearInterval(timerInterval); return; }
+
+                currentSessionId = result.sessionId;
+                appendLog(`[OK]   Sesión iniciada: ${currentSessionId.substring(0,8)}...`, 'cyan');
+
+                // Conectar SSE
+                if (sseSource) sseSource.close();
+                sseSource = new EventSource(`${BACKEND_URL}/api/session/${currentSessionId}/stream`);
+
+                sseSource.addEventListener('stage', (e) => {
+                    const { stage, status, label } = JSON.parse(e.data);
+                    updateStageUI(stage, status, label);
+                });
+
+                sseSource.addEventListener('log', (e) => {
+                    const { text } = JSON.parse(e.data);
+                    appendLog(text);
+                });
+
+                sseSource.addEventListener('complete', (e) => {
+                    const data = JSON.parse(e.data);
+                    clearInterval(timerInterval);
+                    sseSource.close();
+                    showBuildComplete(data);
+                });
+
+                sseSource.addEventListener('error', (e) => {
+                    const data = JSON.parse(e.data || '{}');
+                    appendLog(`[ERROR] ${data.message || 'Error en pipeline'}`, 'red');
+                    clearInterval(timerInterval);
+                    sseSource.close();
+                });
+
+            } else {
+                // ── MODO DEMO INTELIGENTE: Simular con logs mejorados ──
+                appendLog('[INFO] Modo demo activo (backend no detectado). Simulando pipeline IA...', 'yellow');
+                appendLog('[INFO] Para activar el backend real: ejecuta el servidor Node.js en puerto 3001', 'yellow');
+                runDemoPipeline(appName, appPackage, appVersion, currentPlatform);
+            }
+        }
+
+        function appendLog(text, color) {
+            const consoleLogs = document.getElementById('pipeline-terminal-logs');
+            if (!consoleLogs) return;
+            const p = document.createElement('p');
+            const colors = { green: '#10b981', cyan: '#00f2fe', red: '#ef4444', yellow: '#f59e0b', default: '#94a3b8' };
+            p.style.color = colors[color] || colors.default;
+            p.textContent = text;
+            consoleLogs.appendChild(p);
+            consoleLogs.scrollTop = consoleLogs.scrollHeight;
+        }
+
+        function updateStageUI(stage, status, label) {
+            const step = document.getElementById(`step-${stage}`);
+            if (!step) return;
+            const icon  = step.querySelector('.step-icon');
+            const badge = step.querySelector('.step-badge');
+
+            if (status === 'active') {
+                step.className = "pipeline-step p-4 rounded-2xl border border-cyan-500/30 flex items-start sm:items-center gap-4 bg-cyan-950/10 active";
+                if (icon)  icon.className  = "step-icon w-10 h-10 rounded-xl bg-cyan-500 text-black flex items-center justify-center text-md font-bold transition-all";
+                if (badge) { badge.className = "step-badge text-[10px] font-mono text-cyan-400 font-bold uppercase tracking-wider bg-cyan-500/10 px-2 py-1 rounded"; badge.innerText = "Procesando..."; }
+            } else if (status === 'done') {
+                step.className = "pipeline-step p-4 rounded-2xl border border-emerald-500/30 flex items-start sm:items-center gap-4 bg-emerald-950/10 completed";
+                if (icon)  icon.className  = "step-icon w-10 h-10 rounded-xl bg-emerald-500 text-black flex items-center justify-center text-md font-bold transition-all";
+                if (badge) { badge.className = "step-badge text-[10px] font-mono text-emerald-400 font-bold uppercase tracking-wider bg-emerald-500/10 px-2 py-1 rounded"; badge.innerText = "Completado ✓"; }
+            }
+        }
+
+        function showBuildComplete(data) {
+            clearInterval(timerInterval);
+            showToast('¡Compilación Exitosa!', `${data.appName} listo. ${data.filesCount} archivos procesados.`, 'success');
+
+            const actionsEl = document.getElementById('pipeline-completed-actions');
+            if (actionsEl) {
+                actionsEl.classList.remove('hidden');
+                // Actualizar botón de descarga con URL real
+                const dlBtn = actionsEl.querySelector('button');
+                if (dlBtn && data.downloadUrl) {
+                    dlBtn.onclick = () => {
+                        const a = document.createElement('a');
+                        a.href = `${BACKEND_URL}${data.downloadUrl}`;
+                        a.download = data.fileName;
+                        a.click();
+                    };
+                }
+            }
+
+            appendLog(`[OK]   ✅ BUILD COMPLETO: ${data.fileName} (${data.sizeMB} MB)`, 'green');
+            appendLog(`[OK]   Archivos procesados: ${data.filesCount}`, 'green');
+            appendLog(`[OK]   Descarga disponible en el panel.`, 'cyan');
+        }
+
+        // ── Demo pipeline mejorado ──
+        async function runDemoPipeline(appName, appPackage, appVersion, platform) {
+            const demoStages = [
+                { stage: 1, logs: [
+                    `[INFO] Desempaquetando "${appName}"...`,
+                    `[OK]   index.html detectado como punto de entrada.`,
+                    `[AI]   Claude 3.5: Proyecto tipo PWA estática detectado.`,
+                    `[OK]   Inventario: 12 archivos, 4 carpetas.`
+                ]},
+                { stage: 2, logs: [
+                    `[SCAN] Verificando manifest.json... NO ENCONTRADO`,
+                    `[SCAN] Service Worker... NO ENCONTRADO`,
+                    `[SCAN] Íconos (192x192, 512x512)... NO ENCONTRADOS`,
+                    `[AI]   Claude 3.5: Generando configuraciones faltantes...`
+                ]},
+                { stage: 3, logs: [
+                    `[GEN]  manifest.json generado para ${appPackage}`,
+                    `[GEN]  Service Worker con caché offline creado.`,
+                    `[GEN]  capacitor.config.json para ${platform} creado.`,
+                    `[FIX]  Meta viewport optimizado para móvil.`,
+                    `[FIX]  SW registrado en index.html.`
+                ]},
+                { stage: 4, logs: [
+                    `[AUDIT] Revisando seguridad XSS...`,
+                    `[AUDIT] Verificando permisos Android...`,
+                    `[AUDIT] Validando flujo de inicio de app...`,
+                    `[OK]   PROYECTO APROBADO PARA COMPILACIÓN ✓`
+                ]},
+                { stage: 5, logs: [
+                    `[PACK] Empaquetando proyecto con Capacitor...`,
+                    `[PACK] package.json con dependencias generado.`,
+                    `[PACK] README de instalación incluido.`,
+                    `[OK]   AppForge_${appName.replace(/\s+/g,'_')}_${appVersion}_${platform}.zip listo.`,
+                    `[OK]   ✅ PIPELINE COMPLETO — ${new Date().toLocaleTimeString()}`
+                ]}
+            ];
+
+            for (const { stage, logs } of demoStages) {
+                updateStageUI(stage, 'active');
+                for (const log of logs) {
+                    await new Promise(r => setTimeout(r, 900));
+                    appendLog(log);
+                }
+                await new Promise(r => setTimeout(r, 600));
+                updateStageUI(stage, 'done');
+            }
+
+            clearInterval(timerInterval);
+            showToast('¡Pipeline Completo!', 'Proyecto procesado y listo para compilar con Capacitor.', 'success');
+            document.getElementById('pipeline-completed-actions')?.classList.remove('hidden');
+        }
+
+        // Mostrar indicador de modo trial
+        window.addEventListener('DOMContentLoaded', () => {
+            const trialBanner = document.createElement('div');
+            trialBanner.style.cssText = 'position:fixed;bottom:20px;right:20px;z-index:9999;background:linear-gradient(135deg,#7303c0,#00f2fe);padding:10px 18px;border-radius:12px;font-size:12px;font-family:monospace;color:white;box-shadow:0 0 20px rgba(0,242,254,0.4);cursor:pointer;';
+            trialBanner.innerHTML = '🔓 MODO PRUEBA — Todas las funciones desbloqueadas<br><small style="opacity:0.8">Expira: ' + TRIAL_EXPIRY.toLocaleDateString('es-MX',{day:'2-digit',month:'short',hour:'2-digit',minute:'2-digit'}) + '</small>';
+            trialBanner.onclick = () => trialBanner.remove();
+            document.body.appendChild(trialBanner);
+
+            // Desbloquear todos los planes visualmente
+            document.querySelectorAll('[data-plan-locked]').forEach(el => {
+                el.removeAttribute('data-plan-locked');
+                el.querySelectorAll('.locked-overlay')?.forEach(o => o.remove());
+            });
+        });
+
+
+</script>
+</body>
+</html>
