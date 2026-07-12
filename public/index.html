@@ -246,7 +246,103 @@
         }
     </style>
 </head>
-<body class="flex overflow-hidden">
+
+    <!-- ========== PANTALLA DE AUTH ========== -->
+    <div id="auth-screen" style="display:none; position:fixed; inset:0; z-index:99999; background:linear-gradient(135deg,#03001e 0%,#7303c0 50%,#03001e 100%); overflow-y:auto;">
+        <div style="min-height:100vh; display:flex; align-items:center; justify-content:center; padding:24px;">
+            <div style="width:100%; max-width:420px;">
+                <!-- Logo -->
+                <div style="text-align:center; margin-bottom:32px;">
+                    <div style="display:inline-flex; align-items:center; gap:10px; margin-bottom:12px;">
+                        <div style="width:44px; height:44px; background:linear-gradient(135deg,#7303c0,#00f2fe); border-radius:12px; display:flex; align-items:center; justify-content:center;">
+                            <i class="fa-solid fa-bolt" style="color:white; font-size:20px;"></i>
+                        </div>
+                        <span style="font-family:'Orbitron',sans-serif; font-size:20px; font-weight:900; color:white; letter-spacing:1px;">APP FORGE</span>
+                    </div>
+                    <p style="color:rgba(255,255,255,0.6); font-size:13px;">Cloud Compiler AI</p>
+                </div>
+
+                <!-- Card -->
+                <div style="background:rgba(255,255,255,0.05); backdrop-filter:blur(20px); border:1px solid rgba(255,255,255,0.1); border-radius:24px; padding:32px;">
+                    <!-- Tabs -->
+                    <div style="display:flex; background:rgba(0,0,0,0.3); border-radius:12px; padding:4px; margin-bottom:28px;">
+                        <button id="tab-login" onclick="switchTab('login')" style="flex:1; padding:10px; border-radius:10px; border:none; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.2s; background:linear-gradient(135deg,#7303c0,#00f2fe); color:white;">
+                            Iniciar Sesión
+                        </button>
+                        <button id="tab-register" onclick="switchTab('register')" style="flex:1; padding:10px; border-radius:10px; border:none; font-size:13px; font-weight:700; cursor:pointer; transition:all 0.2s; background:transparent; color:rgba(255,255,255,0.5);">
+                            Registrarse
+                        </button>
+                    </div>
+
+                    <!-- LOGIN FORM -->
+                    <div id="form-login">
+                        <div style="margin-bottom:16px;">
+                            <label style="color:rgba(255,255,255,0.7); font-size:12px; font-weight:600; display:block; margin-bottom:6px;">CORREO ELECTRÓNICO</label>
+                            <input id="login-email" type="email" placeholder="tucorreo@email.com"
+                                style="width:100%; padding:12px 14px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:12px; color:white; font-size:14px; outline:none; box-sizing:border-box;"
+                                onfocus="this.style.borderColor='#00f2fe'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+                        </div>
+                        <div style="margin-bottom:24px;">
+                            <label style="color:rgba(255,255,255,0.7); font-size:12px; font-weight:600; display:block; margin-bottom:6px;">CONTRASEÑA</label>
+                            <input id="login-password" type="password" placeholder="••••••••"
+                                style="width:100%; padding:12px 14px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:12px; color:white; font-size:14px; outline:none; box-sizing:border-box;"
+                                onfocus="this.style.borderColor='#00f2fe'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
+                                onkeypress="if(event.key==='Enter')doLogin()">
+                        </div>
+                        <div id="login-error" style="display:none; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); border-radius:10px; padding:10px 14px; color:#f87171; font-size:12px; margin-bottom:16px;"></div>
+                        <button onclick="doLogin()" style="width:100%; padding:14px; background:linear-gradient(135deg,#7303c0,#00f2fe); border:none; border-radius:14px; color:white; font-size:14px; font-weight:800; cursor:pointer; letter-spacing:0.5px;">
+                            <i class="fa-solid fa-arrow-right-to-bracket" style="margin-right:8px;"></i> Entrar
+                        </button>
+                        <p style="text-align:center; margin-top:16px; color:rgba(255,255,255,0.4); font-size:12px;">¿No tienes cuenta? <a onclick="switchTab('register')" style="color:#00f2fe; cursor:pointer; font-weight:700;">Regístrate gratis</a></p>
+                    </div>
+
+                    <!-- REGISTER FORM -->
+                    <div id="form-register" style="display:none;">
+                        <div style="margin-bottom:14px;">
+                            <label style="color:rgba(255,255,255,0.7); font-size:12px; font-weight:600; display:block; margin-bottom:6px;">NOMBRE COMPLETO</label>
+                            <input id="reg-name" type="text" placeholder="Tu nombre"
+                                style="width:100%; padding:12px 14px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:12px; color:white; font-size:14px; outline:none; box-sizing:border-box;"
+                                onfocus="this.style.borderColor='#00f2fe'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+                        </div>
+                        <div style="margin-bottom:14px;">
+                            <label style="color:rgba(255,255,255,0.7); font-size:12px; font-weight:600; display:block; margin-bottom:6px;">CORREO ELECTRÓNICO</label>
+                            <input id="reg-email" type="email" placeholder="tucorreo@email.com"
+                                style="width:100%; padding:12px 14px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:12px; color:white; font-size:14px; outline:none; box-sizing:border-box;"
+                                onfocus="this.style.borderColor='#00f2fe'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+                        </div>
+                        <div style="margin-bottom:14px;">
+                            <label style="color:rgba(255,255,255,0.7); font-size:12px; font-weight:600; display:block; margin-bottom:6px;">CONTRASEÑA</label>
+                            <input id="reg-password" type="password" placeholder="Mínimo 6 caracteres"
+                                style="width:100%; padding:12px 14px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:12px; color:white; font-size:14px; outline:none; box-sizing:border-box;"
+                                onfocus="this.style.borderColor='#00f2fe'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+                        </div>
+                        <div style="margin-bottom:24px;">
+                            <label style="color:rgba(255,255,255,0.7); font-size:12px; font-weight:600; display:block; margin-bottom:6px;">CONFIRMAR CONTRASEÑA</label>
+                            <input id="reg-confirm" type="password" placeholder="Repite tu contraseña"
+                                style="width:100%; padding:12px 14px; background:rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.1); border-radius:12px; color:white; font-size:14px; outline:none; box-sizing:border-box;"
+                                onfocus="this.style.borderColor='#00f2fe'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'"
+                                onkeypress="if(event.key==='Enter')doRegister()">
+                        </div>
+                        <div id="reg-error" style="display:none; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); border-radius:10px; padding:10px 14px; color:#f87171; font-size:12px; margin-bottom:16px;"></div>
+                        <button onclick="doRegister()" style="width:100%; padding:14px; background:linear-gradient(135deg,#7303c0,#00f2fe); border:none; border-radius:14px; color:white; font-size:14px; font-weight:800; cursor:pointer;">
+                            <i class="fa-solid fa-user-plus" style="margin-right:8px;"></i> Crear Cuenta Gratis
+                        </button>
+                        <p style="text-align:center; margin-top:16px; color:rgba(255,255,255,0.4); font-size:12px;">¿Ya tienes cuenta? <a onclick="switchTab('login')" style="color:#00f2fe; cursor:pointer; font-weight:700;">Inicia sesión</a></p>
+                    </div>
+                </div>
+
+                <!-- Trial badge -->
+                <div style="text-align:center; margin-top:20px;">
+                    <span style="background:rgba(0,242,254,0.1); border:1px solid rgba(0,242,254,0.2); border-radius:20px; padding:8px 16px; color:#00f2fe; font-size:11px; font-weight:700; font-family:monospace;">
+                        🔓 72H GRATIS — TODAS LAS FUNCIONES DESBLOQUEADAS
+                    </span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- ========== FIN AUTH ========== -->
+
+    <body class="flex overflow-hidden">
 
     <!-- DECORACIONES DE FONDO NEON -->
     <div class="neon-circle neon-1"></div>
@@ -329,7 +425,8 @@
                     <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 border-2 border-slate-950 rounded-full"></div>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <h4 class="text-xs font-semibold text-white truncate">Mi Cuenta</h4>
+                    <h4 class="text-xs font-semibold text-white truncate sidebar-user-name">Mi Cuenta</h4>
+                    <button id="logout-btn" onclick="doLogout()" title="Cerrar sesión" style="display:none; margin-top:2px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); border-radius:6px; padding:2px 8px; color:#f87171; font-size:10px; font-weight:700; cursor:pointer; font-family:monospace;">SALIR</button>
                     <p class="text-[10px] text-cyan-400 font-mono truncate font-semibold">MODO PRUEBA — 72H</p>
                 </div>
                 <button onclick="toggleLogoutDemo()" class="text-slate-400 hover:text-rose-400 transition-colors">
@@ -424,7 +521,7 @@
                         <div class="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 px-3 py-1 rounded-full text-xs font-semibold">
                             <i class="fa-solid fa-sparkles"></i> Motores de IA actualizados a Claude 3.5 Sonnet
                         </div>
-                        <h2 class="text-3xl font-extrabold text-white tracking-tight">¡Bienvenido/a a <span class="gradient-text">AppForge Cloud</span>!</h2>
+                        <h2 class="text-3xl font-extrabold text-white tracking-tight">¡Bienvenido/a, <span class="gradient-text" id="welcome-username">Usuario</span>!</h2>
                         <p class="text-sm text-slate-300">Tus servidores están listos. Sube tu archivo ZIP o HTML y empieza a compilar. Tienes 72 horas de acceso completo gratuito.</p>
                     </div>
                     <div class="flex gap-4 flex-wrap w-full lg:w-auto">
@@ -2229,5 +2326,99 @@
 
 
 </script>
+
+    <script>
+    // ===== SISTEMA DE AUTENTICACIÓN =====
+    (function() {
+        // Al cargar, verificar sesión
+        function checkAuth() {
+            const session = localStorage.getItem('af_session');
+            const authScreen = document.getElementById('auth-screen');
+            const appBody = document.querySelector('body > *:not(#auth-screen)');
+
+            if (!session) {
+                // Mostrar pantalla de auth, ocultar app
+                authScreen.style.display = 'block';
+                document.querySelectorAll('body > *:not(#auth-screen)').forEach(el => el.style.display = 'none');
+            } else {
+                // Sesión válida — mostrar app
+                const user = JSON.parse(session);
+                authScreen.style.display = 'none';
+                document.querySelectorAll('body > *:not(#auth-screen)').forEach(el => el.style.display = '');
+                applyUserToUI(user);
+            }
+        }
+
+        function applyUserToUI(user) {
+            // Nombre en sidebar
+            const nameEl = document.querySelector('.sidebar-user-name');
+            if (nameEl) nameEl.textContent = user.name;
+            // Bienvenida en dashboard
+            const welcomeEl = document.getElementById('welcome-username');
+            if (welcomeEl) welcomeEl.textContent = user.name.split(' ')[0];
+            // Botón logout
+            const logoutBtn = document.getElementById('logout-btn');
+            if (logoutBtn) logoutBtn.style.display = 'flex';
+        }
+
+        window.switchTab = function(tab) {
+            const isLogin = tab === 'login';
+            document.getElementById('form-login').style.display = isLogin ? 'block' : 'none';
+            document.getElementById('form-register').style.display = isLogin ? 'none' : 'block';
+            document.getElementById('tab-login').style.background = isLogin ? 'linear-gradient(135deg,#7303c0,#00f2fe)' : 'transparent';
+            document.getElementById('tab-login').style.color = isLogin ? 'white' : 'rgba(255,255,255,0.5)';
+            document.getElementById('tab-register').style.background = isLogin ? 'transparent' : 'linear-gradient(135deg,#7303c0,#00f2fe)';
+            document.getElementById('tab-register').style.color = isLogin ? 'rgba(255,255,255,0.5)' : 'white';
+        };
+
+        window.doLogin = function() {
+            const email = document.getElementById('login-email').value.trim();
+            const pass  = document.getElementById('login-password').value;
+            const errEl = document.getElementById('login-error');
+            errEl.style.display = 'none';
+
+            if (!email || !pass) { errEl.textContent = 'Completa todos los campos.'; errEl.style.display='block'; return; }
+
+            const users = JSON.parse(localStorage.getItem('af_users') || '[]');
+            const user = users.find(u => u.email === email.toLowerCase() && u.password === btoa(pass));
+
+            if (!user) { errEl.textContent = 'Correo o contraseña incorrectos.'; errEl.style.display='block'; return; }
+
+            localStorage.setItem('af_session', JSON.stringify({ name: user.name, email: user.email }));
+            checkAuth();
+        };
+
+        window.doRegister = function() {
+            const name    = document.getElementById('reg-name').value.trim();
+            const email   = document.getElementById('reg-email').value.trim();
+            const pass    = document.getElementById('reg-password').value;
+            const confirm = document.getElementById('reg-confirm').value;
+            const errEl   = document.getElementById('reg-error');
+            errEl.style.display = 'none';
+
+            if (!name || !email || !pass || !confirm) { errEl.textContent = 'Completa todos los campos.'; errEl.style.display='block'; return; }
+            if (pass.length < 6)  { errEl.textContent = 'La contraseña debe tener al menos 6 caracteres.'; errEl.style.display='block'; return; }
+            if (pass !== confirm) { errEl.textContent = 'Las contraseñas no coinciden.'; errEl.style.display='block'; return; }
+            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { errEl.textContent = 'Correo inválido.'; errEl.style.display='block'; return; }
+
+            const users = JSON.parse(localStorage.getItem('af_users') || '[]');
+            if (users.find(u => u.email === email.toLowerCase())) { errEl.textContent = 'Este correo ya está registrado.'; errEl.style.display='block'; return; }
+
+            users.push({ name, email: email.toLowerCase(), password: btoa(pass), created: new Date().toISOString() });
+            localStorage.setItem('af_users', JSON.stringify(users));
+            localStorage.setItem('af_session', JSON.stringify({ name, email: email.toLowerCase() }));
+            checkAuth();
+        };
+
+        window.doLogout = function() {
+            localStorage.removeItem('af_session');
+            location.reload();
+        };
+
+        // Ejecutar al cargar
+        document.addEventListener('DOMContentLoaded', checkAuth);
+    })();
+    </script>
+
 </body>
 </html>
