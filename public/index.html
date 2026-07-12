@@ -2190,7 +2190,7 @@
 
         // MODO TRIAL COMPLETO - activo por 48h
         const TRIAL_MODE = true;
-        const TRIAL_EXPIRY = new Date(Date.now() + 48 * 60 * 60 * 1000);
+        const TRIAL_EXPIRY = new Date('2026-07-14T19:00:00'); // 72h de prueba extendida
         let currentSessionId = null;
         let sseSource = null;
 
@@ -2244,12 +2244,19 @@
             }, 1000);
 
             // Verificar si hay backend real
+            // Wake-up progresivo: intenta hasta 3 veces con 20s cada una
             let backendAvailable = false;
-            try {
-                const health = await fetch(`${BACKEND_URL}/api/health`, { signal: AbortSignal.timeout(15000) });
-                const data = await health.json();
-                backendAvailable = data.status === 'ok';
-            } catch(e) { backendAvailable = false; }
+            appendLog('[INFO] Conectando con servidores AppForge Cloud...', 'cyan');
+            for (let attempt = 1; attempt <= 3; attempt++) {
+                try {
+                    if (attempt > 1) appendLog(`[INFO] Reintento ${attempt}/3 — servidor iniciando, espera...`, 'yellow');
+                    const health = await fetch(`${BACKEND_URL}/api/health`, { signal: AbortSignal.timeout(20000) });
+                    const data = await health.json();
+                    if (data.status === 'ok') { backendAvailable = true; break; }
+                } catch(e) {
+                    if (attempt < 3) await new Promise(r => setTimeout(r, 3000));
+                }
+            }
 
             if (backendAvailable) {
                 // ── MODO REAL: Usar backend con IA ──
