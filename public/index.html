@@ -329,8 +329,8 @@
                     <div class="absolute -bottom-1 -right-1 w-3.5 h-3.5 bg-green-500 border-2 border-slate-950 rounded-full"></div>
                 </div>
                 <div class="flex-1 min-w-0">
-                    <h4 class="text-xs font-semibold text-white truncate">Sofía Rodríguez</h4>
-                    <p class="text-[10px] text-cyan-400 font-mono truncate font-semibold">PLAN MENSUAL PRO</p>
+                    <h4 class="text-xs font-semibold text-white truncate">Mi Cuenta</h4>
+                    <p class="text-[10px] text-cyan-400 font-mono truncate font-semibold">MODO PRUEBA — 72H</p>
                 </div>
                 <button onclick="toggleLogoutDemo()" class="text-slate-400 hover:text-rose-400 transition-colors">
                     <i class="fa-solid fa-right-from-bracket"></i>
@@ -424,8 +424,8 @@
                         <div class="inline-flex items-center gap-2 bg-cyan-500/10 border border-cyan-500/30 text-cyan-400 px-3 py-1 rounded-full text-xs font-semibold">
                             <i class="fa-solid fa-sparkles"></i> Motores de IA actualizados a Claude 3.5 Sonnet
                         </div>
-                        <h2 class="text-3xl font-extrabold text-white tracking-tight">¡Bienvenida de nuevo, <span class="gradient-text">Sofía</span>!</h2>
-                        <p class="text-sm text-slate-300">Tienes todos tus servidores listos para compilar. Tu suscripción PRO se encuentra activa y cuentas con velocidad prioritaria ilimitada.</p>
+                        <h2 class="text-3xl font-extrabold text-white tracking-tight">¡Bienvenido/a a <span class="gradient-text">AppForge Cloud</span>!</h2>
+                        <p class="text-sm text-slate-300">Tus servidores están listos. Sube tu archivo ZIP o HTML y empieza a compilar. Tienes 72 horas de acceso completo gratuito.</p>
                     </div>
                     <div class="flex gap-4 flex-wrap w-full lg:w-auto">
                         <button onclick="goToNewBuild()" class="gradient-btn text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 flex-1 lg:flex-initial justify-center shadow-lg shadow-purple-500/30">
@@ -445,7 +445,7 @@
                         </div>
                         <div>
                             <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Total Compilaciones</p>
-                            <h3 class="text-2xl font-black text-white mt-1">114</h3>
+                            <h3 class="text-2xl font-black text-white mt-1">0</h3>
                             <span class="text-[10px] text-green-400 font-semibold"><i class="fa-solid fa-arrow-trend-up"></i> +12 esta semana</span>
                         </div>
                     </div>
@@ -465,7 +465,7 @@
                         </div>
                         <div>
                             <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Correcciones IA</p>
-                            <h3 class="text-2xl font-black text-white mt-1">347</h3>
+                            <h3 class="text-2xl font-black text-white mt-1">0</h3>
                             <span class="text-[10px] text-pink-400 font-semibold"><i class="fa-solid fa-circle-info"></i> 99.4% de tasa de éxito</span>
                         </div>
                     </div>
@@ -475,7 +475,7 @@
                         </div>
                         <div>
                             <p class="text-xs text-slate-400 font-medium uppercase tracking-wider">Consumo API Cloud</p>
-                            <h3 class="text-2xl font-black text-white mt-1">4.2K</h3>
+                            <h3 class="text-2xl font-black text-white mt-1">0</h3>
                             <span class="text-[10px] text-slate-400 font-semibold">Llamadas REST este mes</span>
                         </div>
                     </div>
@@ -584,63 +584,14 @@
                         <h3 class="text-lg font-bold text-white flex items-center gap-2">
                             <i class="fa-solid fa-clock-rotate-left text-purple-400"></i> Últimas Compilaciones del Sistema
                         </h3>
-                        <button onclick="showSection('build-history')" class="text-xs text-cyan-400 hover:underline">Ver historial completo</button>
+                        <button onclick="showSection('build-history')" class="text-xs text-cyan-400 hover:text-cyan-300 font-mono font-semibold">Ver historial completo →</button>
                     </div>
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="border-b border-white/5 text-[10px] text-slate-400 uppercase tracking-wider">
-                                    <th class="py-3 px-4">Build ID</th>
-                                    <th class="py-3 px-4">Nombre Proyecto</th>
-                                    <th class="py-3 px-4">Plataforma</th>
-                                    <th class="py-3 px-4">Fecha</th>
-                                    <th class="py-3 px-4">Tamaño</th>
-                                    <th class="py-3 px-4">Estado</th>
-                                    <th class="py-3 px-4 text-right">Acciones</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-xs divide-y divide-white/5 text-slate-300">
-                                <tr>
-                                    <td class="py-4 px-4 font-mono font-bold text-cyan-400">#AF-841</td>
-                                    <td class="py-4 px-4 font-semibold text-white">E-Commerce App</td>
-                                    <td class="py-4 px-4"><i class="fa-brands fa-android text-emerald-400 mr-1"></i> Android (APK)</td>
-                                    <td class="py-4 px-4">Hoy, 12:44 PM</td>
-                                    <td class="py-4 px-4">18.4 MB</td>
-                                    <td class="py-4 px-4"><span class="bg-green-500/10 text-green-400 border border-green-500/30 px-2 py-1 rounded text-[10px] font-bold">COMPLETADO</span></td>
-                                    <td class="py-4 px-4 text-right">
-                                        <button class="text-slate-300 hover:text-cyan-400 bg-white/5 hover:bg-cyan-500/10 p-2 rounded-lg border border-white/5 transition-all" onclick="downloadBuildDemo('AF-841')">
-                                            <i class="fa-solid fa-download"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="py-4 px-4 font-mono font-bold text-cyan-400">#AF-840</td>
-                                    <td class="py-4 px-4 font-semibold text-white">App de Domicilios</td>
-                                    <td class="py-4 px-4"><i class="fa-brands fa-apple text-slate-300 mr-1"></i> iOS (IPA)</td>
-                                    <td class="py-4 px-4">Ayer, 06:15 PM</td>
-                                    <td class="py-4 px-4">34.1 MB</td>
-                                    <td class="py-4 px-4"><span class="bg-green-500/10 text-green-400 border border-green-500/30 px-2 py-1 rounded text-[10px] font-bold">COMPLETADO</span></td>
-                                    <td class="py-4 px-4 text-right">
-                                        <button class="text-slate-300 hover:text-cyan-400 bg-white/5 hover:bg-cyan-500/10 p-2 rounded-lg border border-white/5 transition-all" onclick="downloadBuildDemo('AF-840')">
-                                            <i class="fa-solid fa-download"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="py-4 px-4 font-mono font-bold text-cyan-400">#AF-838</td>
-                                    <td class="py-4 px-4 font-semibold text-white">Dashboard IoT</td>
-                                    <td class="py-4 px-4"><i class="fa-solid fa-mobile-screen mr-1 text-purple-400"></i> Ambas (APK + IPA)</td>
-                                    <td class="py-4 px-4">07 Jul 2026</td>
-                                    <td class="py-4 px-4">42.8 MB</td>
-                                    <td class="py-4 px-4"><span class="bg-green-500/10 text-green-400 border border-green-500/30 px-2 py-1 rounded text-[10px] font-bold">COMPLETADO</span></td>
-                                    <td class="py-4 px-4 text-right">
-                                        <button class="text-slate-300 hover:text-cyan-400 bg-white/5 hover:bg-cyan-500/10 p-2 rounded-lg border border-white/5 transition-all" onclick="downloadBuildDemo('AF-838')">
-                                            <i class="fa-solid fa-download"></i>
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="flex flex-col items-center justify-center py-10 text-center gap-3">
+                        <i class="fa-solid fa-box-open text-4xl text-slate-600"></i>
+                        <p class="text-slate-400 text-sm">Aún no hay compilaciones. ¡Crea tu primera app!</p>
+                        <button onclick="showSection('new-build')" class="gradient-btn text-white text-xs font-bold px-5 py-2.5 rounded-xl mt-1">
+                            <i class="fa-solid fa-plus mr-1"></i> Nueva Compilación
+                        </button>
                     </div>
                 </div>
             </section>
@@ -1042,102 +993,20 @@
 
             <!-- ================= SECCIÓN 4: MIS PROYECTOS ================= -->
             <section id="sec-my-projects" class="space-y-6 hidden">
-                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <div class="flex items-center justify-between">
                     <div>
-                        <h2 class="text-3xl font-black text-white tracking-tight flex items-center gap-2">
-                            <i class="fa-solid fa-folder-open text-cyan-400"></i> Mis <span class="gradient-text">Proyectos</span>
-                        </h2>
-                        <p class="text-sm text-slate-400">Administra tus configuraciones, credenciales de firmas y repositorios de código de tus aplicaciones creadas.</p>
+                        <h2 class="text-3xl font-black text-white tracking-tight">Mis <span class="gradient-text">Proyectos</span></h2>
+                        <p class="text-sm text-slate-400 mt-1">Tus compilaciones guardadas aparecerán aquí.</p>
                     </div>
-                    <button onclick="showSection('new-build')" class="gradient-btn text-white text-xs px-5 py-3 rounded-2xl font-bold flex items-center gap-2 shadow-lg shadow-purple-500/20">
-                        <i class="fa-solid fa-plus"></i> Crear Nuevo Proyecto
+                </div>
+                <div class="flex flex-col items-center justify-center py-20 text-center gap-4">
+                    <i class="fa-solid fa-folder-open text-5xl text-slate-600"></i>
+                    <p class="text-slate-400">Aún no tienes proyectos compilados.</p>
+                    <button onclick="showSection('new-build')" class="gradient-btn text-white font-bold px-6 py-3 rounded-2xl">
+                        <i class="fa-solid fa-plus mr-2"></i> Crear primera compilación
                     </button>
                 </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- Tarjeta Proyecto 1 -->
-                    <div class="bg-glass-card p-6 rounded-3xl border border-white/5 flex flex-col justify-between space-y-6">
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between">
-                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 text-white flex items-center justify-center text-lg shadow-lg">
-                                    <i class="fa-solid fa-cart-shopping"></i>
-                                </div>
-                                <span class="bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold">com.empresa.shop</span>
-                            </div>
-                            <div>
-                                <h3 class="text-base font-bold text-white">E-Commerce App</h3>
-                                <p class="text-xs text-slate-400 mt-1 line-clamp-2">Aplicación de tienda virtual construida sobre React y adaptada para compilación híbrida óptima.</p>
-                            </div>
-                        </div>
-                        <div class="pt-4 border-t border-white/5 flex justify-between items-center text-xs">
-                            <span class="text-slate-500"><i class="fa-solid fa-code-branch"></i> v1.4.2</span>
-                            <div class="flex gap-2">
-                                <button onclick="quickBuildProject('E-Commerce App', 'com.empresa.shop')" class="bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/20 p-2 rounded-xl transition-all" title="Compilación Rápida">
-                                    <i class="fa-solid fa-bolt"></i>
-                                </button>
-                                <button onclick="alert('Funcionalidad de configuración del proyecto en desarrollo de interfaz')" class="bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5 p-2 rounded-xl transition-all" title="Configurar">
-                                    <i class="fa-solid fa-gear"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tarjeta Proyecto 2 -->
-                    <div class="bg-glass-card p-6 rounded-3xl border border-white/5 flex flex-col justify-between space-y-6">
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between">
-                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-emerald-500 to-teal-500 text-white flex items-center justify-center text-lg shadow-lg">
-                                    <i class="fa-solid fa-bicycle"></i>
-                                </div>
-                                <span class="bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold">com.empresa.delivery</span>
-                            </div>
-                            <div>
-                                <h3 class="text-base font-bold text-white">App de Domicilios</h3>
-                                <p class="text-xs text-slate-400 mt-1 line-clamp-2">Servicio de rastreo de comida en tiempo real con Geolocalización avanzada habilitada en permisos de Android.</p>
-                            </div>
-                        </div>
-                        <div class="pt-4 border-t border-white/5 flex justify-between items-center text-xs">
-                            <span class="text-slate-500"><i class="fa-solid fa-code-branch"></i> v1.0.8</span>
-                            <div class="flex gap-2">
-                                <button onclick="quickBuildProject('App de Domicilios', 'com.empresa.delivery')" class="bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/20 p-2 rounded-xl transition-all" title="Compilación Rápida">
-                                    <i class="fa-solid fa-bolt"></i>
-                                </button>
-                                <button onclick="alert('Funcionalidad de configuración del proyecto en desarrollo de interfaz')" class="bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5 p-2 rounded-xl transition-all" title="Configurar">
-                                    <i class="fa-solid fa-gear"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Tarjeta Proyecto 3 -->
-                    <div class="bg-glass-card p-6 rounded-3xl border border-white/5 flex flex-col justify-between space-y-6">
-                        <div class="space-y-3">
-                            <div class="flex items-center justify-between">
-                                <div class="w-12 h-12 rounded-xl bg-gradient-to-br from-pink-500 to-rose-500 text-white flex items-center justify-center text-lg shadow-lg">
-                                    <i class="fa-solid fa-microchip"></i>
-                                </div>
-                                <span class="bg-cyan-500/10 text-cyan-400 border border-cyan-500/30 px-2.5 py-1 rounded-full text-[10px] font-mono font-bold">com.empresa.iot</span>
-                            </div>
-                            <div>
-                                <h3 class="text-base font-bold text-white">Dashboard IoT</h3>
-                                <p class="text-xs text-slate-400 mt-1 line-clamp-2">Panel inteligente para automatización y control de sensores de temperatura domésticos mediante WebSockets.</p>
-                            </div>
-                        </div>
-                        <div class="pt-4 border-t border-white/5 flex justify-between items-center text-xs">
-                            <span class="text-slate-500"><i class="fa-solid fa-code-branch"></i> v2.1.0</span>
-                            <div class="flex gap-2">
-                                <button onclick="quickBuildProject('Dashboard IoT', 'com.empresa.iot')" class="bg-cyan-500/10 hover:bg-cyan-500/20 text-cyan-400 border border-cyan-500/20 p-2 rounded-xl transition-all" title="Compilación Rápida">
-                                    <i class="fa-solid fa-bolt"></i>
-                                </button>
-                                <button onclick="alert('Funcionalidad de configuración del proyecto en desarrollo de interfaz')" class="bg-white/5 hover:bg-white/10 text-slate-300 border border-white/5 p-2 rounded-xl transition-all" title="Configurar">
-                                    <i class="fa-solid fa-gear"></i>
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
             </section>
-
 
             <!-- ================= SECCIÓN 5: HISTORIAL DE BUILDS ================= -->
             <section id="sec-build-history" class="space-y-6 hidden">
@@ -1161,91 +1030,12 @@
                 </div>
 
                 <div class="bg-glass p-6 rounded-3xl border border-white/5 space-y-4">
-                    <div class="overflow-x-auto">
-                        <table class="w-full text-left border-collapse">
-                            <thead>
-                                <tr class="border-b border-white/5 text-[10px] text-slate-400 uppercase tracking-wider">
-                                    <th class="py-3 px-4">Build ID</th>
-                                    <th class="py-3 px-4">Proyecto</th>
-                                    <th class="py-3 px-4">Plataforma</th>
-                                    <th class="py-3 px-4">Fecha</th>
-                                    <th class="py-3 px-4">Duración</th>
-                                    <th class="py-3 px-4">Tamaño</th>
-                                    <th class="py-3 px-4">Estado</th>
-                                    <th class="py-3 px-4 text-right">Firma / Binario</th>
-                                </tr>
-                            </thead>
-                            <tbody class="text-xs divide-y divide-white/5 text-slate-300">
-                                <tr>
-                                    <td class="py-4 px-4 font-mono font-bold text-cyan-400">#AF-841</td>
-                                    <td class="py-4 px-4">
-                                        <p class="font-semibold text-white">E-Commerce App</p>
-                                        <span class="text-[9px] text-slate-500 font-mono">com.empresa.shop</span>
-                                    </td>
-                                    <td class="py-4 px-4"><i class="fa-brands fa-android text-emerald-400 mr-1"></i> Android (.APK)</td>
-                                    <td class="py-4 px-4">Hoy, 12:44 PM</td>
-                                    <td class="py-4 px-4 font-mono">2m 45s</td>
-                                    <td class="py-4 px-4 font-mono">18.4 MB</td>
-                                    <td class="py-4 px-4"><span class="bg-green-500/10 text-green-400 border border-green-500/30 px-2.5 py-1 rounded text-[10px] font-bold">COMPLETADO</span></td>
-                                    <td class="py-4 px-4 text-right">
-                                        <button onclick="downloadBuildDemo('AF-841')" class="bg-white/5 hover:bg-cyan-500/10 hover:text-cyan-400 border border-white/5 text-slate-200 text-xs px-3 py-1.5 rounded-lg font-bold transition-all inline-flex items-center gap-1">
-                                            <i class="fa-solid fa-download"></i> Descargar
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="py-4 px-4 font-mono font-bold text-cyan-400">#AF-840</td>
-                                    <td class="py-4 px-4">
-                                        <p class="font-semibold text-white">App de Domicilios</p>
-                                        <span class="text-[9px] text-slate-500 font-mono">com.empresa.delivery</span>
-                                    </td>
-                                    <td class="py-4 px-4"><i class="fa-brands fa-apple text-slate-300 mr-1"></i> iOS (.IPA)</td>
-                                    <td class="py-4 px-4">Ayer, 06:15 PM</td>
-                                    <td class="py-4 px-4 font-mono">3m 12s</td>
-                                    <td class="py-4 px-4 font-mono">34.1 MB</td>
-                                    <td class="py-4 px-4"><span class="bg-green-500/10 text-green-400 border border-green-500/30 px-2.5 py-1 rounded text-[10px] font-bold">COMPLETADO</span></td>
-                                    <td class="py-4 px-4 text-right">
-                                        <button onclick="downloadBuildDemo('AF-840')" class="bg-white/5 hover:bg-cyan-500/10 hover:text-cyan-400 border border-white/5 text-slate-200 text-xs px-3 py-1.5 rounded-lg font-bold transition-all inline-flex items-center gap-1">
-                                            <i class="fa-solid fa-download"></i> Descargar
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="py-4 px-4 font-mono font-bold text-cyan-400">#AF-839</td>
-                                    <td class="py-4 px-4">
-                                        <p class="font-semibold text-white">App de Domicilios</p>
-                                        <span class="text-[9px] text-slate-500 font-mono">com.empresa.delivery</span>
-                                    </td>
-                                    <td class="py-4 px-4"><i class="fa-brands fa-apple text-slate-300 mr-1"></i> iOS (.IPA)</td>
-                                    <td class="py-4 px-4">08 Jul 2026</td>
-                                    <td class="py-4 px-4 font-mono">1m 15s</td>
-                                    <td class="py-4 px-4 font-mono">-</td>
-                                    <td class="py-4 px-4"><span class="bg-rose-500/10 text-rose-400 border border-rose-500/30 px-2.5 py-1 rounded text-[10px] font-bold">ERROR</span></td>
-                                    <td class="py-4 px-4 text-right">
-                                        <button onclick="alert('LOG DE ERROR #AF-839:\n[ERROR] El archivo de origen ZIP no contiene el archivo principal index.html.\nPor favor verifica tu estructura de carpetas.')" class="bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs px-3 py-1.5 rounded-lg font-bold transition-all inline-flex items-center gap-1">
-                                            <i class="fa-solid fa-bug"></i> Ver Error
-                                        </button>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td class="py-4 px-4 font-mono font-bold text-cyan-400">#AF-838</td>
-                                    <td class="py-4 px-4">
-                                        <p class="font-semibold text-white">Dashboard IoT</p>
-                                        <span class="text-[9px] text-slate-500 font-mono">com.empresa.iot</span>
-                                    </td>
-                                    <td class="py-4 px-4"><i class="fa-solid fa-mobile-screen mr-1 text-purple-400"></i> Ambas (APK + IPA)</td>
-                                    <td class="py-4 px-4">07 Jul 2026</td>
-                                    <td class="py-4 px-4 font-mono">4m 02s</td>
-                                    <td class="py-4 px-4 font-mono">42.8 MB</td>
-                                    <td class="py-4 px-4"><span class="bg-green-500/10 text-green-400 border border-green-500/30 px-2.5 py-1 rounded text-[10px] font-bold">COMPLETADO</span></td>
-                                    <td class="py-4 px-4 text-right">
-                                        <button onclick="downloadBuildDemo('AF-838')" class="bg-white/5 hover:bg-cyan-500/10 hover:text-cyan-400 border border-white/5 text-slate-200 text-xs px-3 py-1.5 rounded-lg font-bold transition-all inline-flex items-center gap-1">
-                                            <i class="fa-solid fa-download"></i> Descargar
-                                        </button>
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+                    <div class="flex flex-col items-center justify-center py-12 text-center gap-3">
+                        <i class="fa-solid fa-clock-rotate-left text-4xl text-slate-600"></i>
+                        <p class="text-slate-400 text-sm">Sin historial de compilaciones todavía.</p>
+                        <button onclick="showSection('new-build')" class="gradient-btn text-white text-xs font-bold px-5 py-2.5 rounded-xl">
+                            <i class="fa-solid fa-plus mr-1"></i> Primera Compilación
+                        </button>
                     </div>
                 </div>
             </section>
@@ -1615,7 +1405,7 @@
                             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
                                 <div class="space-y-2">
                                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Nombre Completo</label>
-                                    <input type="text" class="bg-slate-950/40 border border-white/5 focus:border-cyan-500/50 text-white text-sm rounded-xl p-3 w-full focus:outline-none" value="Sofía Rodríguez">
+                                    <input type="text" class="bg-slate-950/40 border border-white/5 focus:border-cyan-500/50 text-white text-sm rounded-xl p-3 w-full focus:outline-none" value="Mi Cuenta">
                                 </div>
                                 <div class="space-y-2">
                                     <label class="text-xs font-bold text-slate-400 uppercase tracking-wider block">Correo Electrónico</label>
@@ -1668,7 +1458,7 @@
                                 <div class="p-3 bg-purple-500/10 border border-purple-500/30 rounded-2xl flex items-center gap-3">
                                     <div class="text-purple-400 text-xl"><i class="fa-solid fa-star"></i></div>
                                     <div>
-                                        <p class="text-xs font-black text-white">PLAN MENSUAL PRO</p>
+                                        <p class="text-xs font-black text-white">MODO PRUEBA — 72H</p>
                                         <p class="text-[10px] text-purple-300 font-bold">$299 MXN / mes</p>
                                     </div>
                                 </div>
